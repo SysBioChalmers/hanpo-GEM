@@ -232,7 +232,7 @@ MODEL.
 
 %% 3. CONSTRUCT DRAFT MODEL FROM HOMOLOGY, ASK ED ABT second homology model from databases/fakeblast struct?
           %CONSIDER MERGING COMPS OF TEMPLATE MODEL BEFORE GETFROMHOMOLOGY
-          %-attempting
+          %-attempting- ask ED if worth trying
 %{
 
 To construct a draft model from homology we can use the protein FASTA 
@@ -246,7 +246,7 @@ A.fumigatus and P.chrysogenum. This step results in a BLAST strucutre.
 
 %}
 
-%afmBlastStructure = getBlast('afm','afm_prot.faa',{'pch'},{'pch_prot.fa'});
+afmBlastStructure = getBlast('afm','afm_prot.faa',{'pch'},{'pch_prot.fa'});
 
 %{
 
@@ -264,11 +264,11 @@ load('afmBlastStructure.mat');
 
 % Merge compartments of template model to allow for easier model merging
 % later on, localization will be re-established after merging
-[modelPch, deletedRxns, duplicateRxns]=mergeCompartments(modelPch,true) %note model cant grow after merging
+[modelPch, deletedRxns, duplicateRxns]=mergeCompartments(modelPch,true)
 
 
 % To avoid keeping unneccesary old genes, the models should not have
-% "OR" relations in their grRules. To remove these use expandModel(),
+% 'OR' relations in their grRules. To remove these use expandModel(),
 % which separates reactions that were annotated with isoenzymes into
 % multiple reactions. Note how there are more reactions in the expanded
 % model than in the original.
@@ -468,7 +468,7 @@ modelAfm =
 % not added by the getModelFromHomology() function. We might not require 
 % all exchange rxns, but we can easily remove unconnected ones later.
 exRxns=getExchangeRxns(modelPch);                                                %% NOTE MAYBE BETTER TO DO THIS AND
-modelAfm=addRxnsGenesMets(modelAfm,modelPch,exRxns,false,'Modeling reaction',1); %% REST OF THIS SECTION AFTER MERGING
+modelAfm=addRxnsGenesMets(modelAfm,modelPch,exRxns,false,'Modeling reaction',1); %% REST OF THIS SECTION AFTER MERGING add exch after gap filling
 
 %{
 
@@ -795,7 +795,7 @@ exportToExcelFormat(modelAfmHomology,'modelAfmHomology.xlsx');
 
 % Add spontaneous bicarbonate formation DOUBLE CHECK IF THIS APPLIES TO
 % P.CH MODEL. Looks like bicarbonate formation is not present in Pch model,
-% maybe good to include in final draft of A.fumigatus model???????????
+% maybe good to include in final draft of A.fumigatus model
 %exRxns={'r_1664','r_1665','r_1667','r_1668'};
 %modelCal2=addRxnsGenesMets(modelCal2,modelSce,exRxns,true,...
 %    'Manual curation','1'); % Add reactions and metabolites
@@ -830,7 +830,7 @@ clear rxnIdx noGeneIdx exRxns idx modelPchExpanded afmBlastStructure sol modelAf
 
 % Upload first homologyModel draft
 
-%% 5. CONSTRUCT DRAFT MODELS FROM KEGG - check excel sheets, look at subsystem
+%% 5. CONSTRUCT DRAFT MODELS FROM KEGG 
 
 %{
 
@@ -1112,13 +1112,33 @@ exportToExcelFormat(modelAfmMCKegg,'modelAfmMCKegg.xlsx');
 save(modelAfmMCKegg,'modelAfmMCKegg.mat')
 save('modelAfmHomology.mat')
 
-%% localization
- % remove localization in homology mergeCompartments() (keep unconstrained), merge models,gap fill ,predict localization
+%% Localization
+
+%{
+
+This aspect of GEM reconstruction can also be tricky. Since most draft
+models obtained up to this point lack any type of localization information
+(e.g modelAfmKegg,modelAfmMC, modelAfmMCKegg, etc), it may be best to merge
+models first and then predict localization on the final model. The first
+step is to break our target GEM organism's FASTA file into chunks of 1000
+protein sequences. These chunks can then be run through the subcellular 
+localization prediction tool CELLO (http://cello.life.nctu.edu.tw/). The
+output of this tool can then be reassembled into one file containing the
+localization information for the entire FASTA file. This is then used as an
+input for the parseScores() function, which yields a Gene Scoring
+Structure (GSS) as the output. This GSS is then subsetted to only include
+localization information about the compartments of interest
+
+%}
+
+    % remove localization in homology mergeCompartments() (keep unconstrained), merge models,gap fill ,predict localization
     %use homology/pch modelsz for gap filling 
     
-    %do not want all of the compartments from cello, use copyToComps()
-    %function to move rxns arounnd/then delete unwanted comps. keep cytosol,
-    %mitochondria, peroxisome, extracellular; everything else is cytosolic
+    %do not want all of the compartments from cello, use copyToComps() 
+    %function to move rxns arounnd/then delete unwanted comps (or
+    %simply subset the obtained GSS to only include compartments of
+    %interest). keep cytosol,mitochondria, peroxisome, extracellular; 
+    %everything else is cytosolic, what about boundary?
     
     %DO:
     %merge compartments in AfmHomology/Pch, fillGaps, predict localization
@@ -1127,13 +1147,15 @@ save('modelAfmHomology.mat')
     
     %predict localization on KEGG, MC models, if works merge with Homology
 
-GSS = parseScores('celloLocScores.txt','cello'); 
-GSSsub = GSS.scores(:,[1 3 8 10]); %only care about extracellular, cytoplasmic, mitochondrial, and peroxisomal
+GSS = parseScores('afm_prot_deeploc.txt','deeploc'); 
+GSSsub = GSS.scores(:,[3 4 5 11]); %only care about extracellular, cytoplasmic, mitochondrial, and peroxisomal
 GSSsubset = GSS;
 GSSsubset.scores = GSSsub;
-GSSsubset.compartments = GSS.compartments([1 3 8 10]);
+GSSsubset.compartments = GSS.compartments([3 4 5 11]);
 
-[modelAfmHomologyMergeComps, deletedRxnsMergeComps, duplicateRxnsMergeComps]=mergeCompartments(modelAfmHomology,true);
+GSSsubset.compartments = transpose(GSSsubset.compartments) %need to do this for predictLocalization to work
+
+%[modelAfmHomologyMergeComps, deletedRxnsMergeComps, duplicateRxnsMergeComps]=mergeCompartments(modelAfmHomology,true);
 
 %{
 
@@ -1175,7 +1197,7 @@ modelAfmHomologyMergeComps =
 
 %fill gaps before localization, merge comps of Pch model before fill gaps
 
-[modelPchMerged, deletedRxns, duplicateRxns]=mergeCompartments(modelPch,true);
+%[modelPchMerged, deletedRxns, duplicateRxns]=mergeCompartments(modelPch,true);
 
 %{
 
@@ -1784,9 +1806,10 @@ exitFlag =
 
 %}
 
-[modelAfmHomologyCello, geneLocalization, transportStruct, score, removedRxns] = predictLocalization(newModel,GSSsubset,'cytop')
+[modelAfmHomologyDeeploc, geneLocalization, transportStruct, score, removedRxns] = predictLocalization(modelAfmHomology,GSSsubset,'Cytoplasm')
 
 %{
+
 WARNING: The model structure contains information about gene compartmentalization. This is not supported by this function. The geneComps field has been deleted
 
 WARNING: Reaction r0088 contains nested and/or-relations. Large risk of errors
@@ -1820,106 +1843,285 @@ WARNING: Reaction r0702 contains nested and/or-relations. Large risk of errors
 WARNING: Reaction r0705 contains nested and/or-relations. Large risk of errors
 
 
-modelAfmHomologyCello = 
+modelAfmHomologyDeeploc = 
 
   struct with fields:
 
-                     id: 'MERGED'
-            description: ''
+                     id: 'afm'
+            description: 'Generated by getModelFromHomology using pch'
              annotation: [1×1 struct]
-                   rxns: {2494×1 cell}
-                   mets: {1077×1 cell}
-                      S: [1077×2494 double]
-                     lb: [2494×1 double]
-                     ub: [2494×1 double]
-                    rev: [2494×1 double]
-                      c: [2494×1 double]
-                      b: [1077×1 double]
+                   rxns: {1966×1 cell}
+                   mets: {1035×1 cell}
+                      S: [1035×1966 double]
+                     lb: [1966×1 double]
+                     ub: [1966×1 double]
+                    rev: [1966×1 double]
+                      c: [1966×1 double]
+                      b: [1035×1 double]
                   comps: {4×1 cell}
               compNames: {4×1 cell}
             compOutside: {4×1 cell}
             compMiriams: {5×1 cell}
-               rxnNames: {2494×1 cell}
-                grRules: {2494×1 cell}
-             rxnGeneMat: [2494×962 double]
-             subSystems: {2494×1 cell}
-                eccodes: {2494×1 cell}
-                  genes: {962×1 cell}
-               metNames: {1077×1 cell}
-               metComps: [1077×1 double]
-                 inchis: {1077×1 cell}
-            metFormulas: {1077×1 cell}
-             metMiriams: {1077×1 cell}
-               rxnNotes: {2494×1 cell}
-    rxnConfidenceScores: [2494×1 double]
-                rxnFrom: {2494×1 cell}
-                metFrom: {1077×1 cell}
-               geneFrom: {1016×1 cell}
-         geneShortNames: {962×1 cell}
-            geneMiriams: {962×1 cell}
+               rxnNames: {1966×1 cell}
+                grRules: {1966×1 cell}
+             rxnGeneMat: [1966×800 double]
+             subSystems: {1966×1 cell}
+                eccodes: {1966×1 cell}
+                  genes: {800×1 cell}
+               metNames: {1035×1 cell}
+               metComps: [1035×1 double]
+                 inchis: {1035×1 cell}
+            metFormulas: {1035×1 cell}
+             metMiriams: {1035×1 cell}
+               rxnNotes: {1966×1 cell}
+    rxnConfidenceScores: [1966×1 double]
 
 
 geneLocalization = 
 
   struct with fields:
 
-    genes: {962×1 cell}
-    comps: {962×1 cell}
+    genes: {800×1 cell}
+    comps: {800×1 cell}
 
 
 transportStruct = 
 
   struct with fields:
 
-      mets: {0×1 cell}
-    toComp: {0×1 cell}
+      mets: {'L-tryptophan'}
+    toComp: {'Mitochondrion'}
 
 
 score = 
 
   struct with fields:
 
-     totScore: 1.2179
-    geneScore: 679.3942
-    transCost: 1
+     totScore: 398
+    geneScore: 400
+    transCost: 2
 
 
 removedRxns =
 
-  52×1 cell array
+  352×1 cell array
 
+    {'r0065'       }
+    {'r0066'       }
     {'r0071'       }
+    {'r0121'       }
+    {'r0155'       }
     {'r0162'       }
     {'r0162'       }
+    {'r0167'       }
+    {'r0168'       }
+    {'r0169'       }
+    {'r0170'       }
+    {'r0172'       }
     {'r0174'       }
+    {'r0176'       }
+    {'r0194'       }
+    {'r0200'       }
+    {'r0202'       }
+    {'r0207'       }
     {'r0213'       }
+    {'r0220'       }
+    {'r0239'       }
+    {'r0255'       }
+    {'r0256'       }
+    {'r0284'       }
+    {'r0284'       }
+    {'r0287'       }
+    {'r0301'       }
+    {'r0310'       }
+    {'r0311'       }
+    {'r0318'       }
+    {'r0320'       }
+    {'r0326'       }
+    {'r0334'       }
+    {'r0335'       }
     {'r0356'       }
     {'r0405'       }
+    {'r0449'       }
+    {'r0457'       }
+    {'r0463'       }
+    {'r0487'       }
+    {'r0506'       }
+    {'r0510'       }
     {'r0514'       }
     {'r0515'       }
     {'r0516'       }
     {'r0523'       }
     {'r0534'       }
+    {'r0537'       }
+    {'r0539'       }
     {'r0573'       }
     {'r0597'       }
     {'r0602'       }
     {'r0603'       }
     {'r0604'       }
+    {'r0610'       }
+    {'r0627'       }
     {'r0630'       }
+    {'r0638'       }
     {'r0726'       }
     {'r0728'       }
+    {'r0743'       }
+    {'r0749'       }
     {'r0752'       }
     {'r0759'       }
+    {'r0763'       }
+    {'r0764'       }
+    {'r0766'       }
+    {'r0769'       }
+    {'r0770'       }
+    {'r0771'       }
+    {'r0772'       }
+    {'r0774'       }
+    {'r0776'       }
+    {'r0777'       }
+    {'r0778'       }
+    {'r0780'       }
+    {'r0781'       }
+    {'r0783'       }
+    {'r0784'       }
+    {'r0785'       }
+    {'r0786'       }
+    {'r0788'       }
+    {'r0790'       }
+    {'r0791'       }
+    {'r0796'       }
+    {'r0806'       }
+    {'r1152'       }
+    {'r1158'       }
+    {'r1159'       }
+    {'r1161'       }
+    {'r1162'       }
+    {'r0192'       }
+    {'r0241'       }
+    {'r0065_EXP_2' }
+    {'r0065_EXP_3' }
+    {'r0066_EXP_2' }
+    {'r0066_EXP_3' }
+    {'r0066_EXP_4' }
     {'r0071_EXP_2' }
+    {'r0121_EXP_2' }
+    {'r0167_EXP_2' }
+    {'r0167_EXP_3' }
+    {'r0167_EXP_4' }
+    {'r0167_EXP_5' }
+    {'r0167_EXP_6' }
+    {'r0167_EXP_7' }
+    {'r0167_EXP_8' }
+    {'r0167_EXP_9' }
+    {'r0167_EXP_10'}
+    {'r0167_EXP_11'}
+    {'r0167_EXP_12'}
+    {'r0168_EXP_2' }
+    {'r0168_EXP_3' }
+    {'r0168_EXP_4' }
+    {'r0168_EXP_5' }
+    {'r0168_EXP_6' }
+    {'r0168_EXP_7' }
+    {'r0168_EXP_8' }
+    {'r0168_EXP_9' }
+    {'r0168_EXP_10'}
+    {'r0168_EXP_11'}
+    {'r0168_EXP_12'}
+    {'r0169_EXP_2' }
+    {'r0169_EXP_3' }
+    {'r0169_EXP_4' }
+    {'r0169_EXP_5' }
+    {'r0169_EXP_6' }
+    {'r0169_EXP_7' }
+    {'r0169_EXP_8' }
+    {'r0169_EXP_9' }
+    {'r0169_EXP_10'}
+    {'r0170_EXP_2' }
+    {'r0170_EXP_3' }
+    {'r0170_EXP_4' }
+    {'r0170_EXP_5' }
+    {'r0170_EXP_6' }
+    {'r0170_EXP_7' }
+    {'r0170_EXP_8' }
+    {'r0170_EXP_9' }
+    {'r0170_EXP_10'}
     {'r0174_EXP_2' }
+    {'r0176_EXP_2' }
+    {'r0176_EXP_3' }
+    {'r0176_EXP_4' }
+    {'r0194_EXP_2' }
+    {'r0194_EXP_3' }
+    {'r0194_EXP_4' }
+    {'r0194_EXP_5' }
+    {'r0194_EXP_6' }
+    {'r0200_EXP_2' }
+    {'r0200_EXP_3' }
+    {'r0200_EXP_4' }
+    {'r0200_EXP_5' }
+    {'r0200_EXP_6' }
+    {'r0200_EXP_7' }
+    {'r0200_EXP_8' }
+    {'r0200_EXP_9' }
+    {'r0200_EXP_10'}
+    {'r0202_EXP_2' }
+    {'r0202_EXP_3' }
+    {'r0202_EXP_4' }
+    {'r0202_EXP_5' }
+    {'r0207_EXP_2' }
+    {'r0207_EXP_3' }
+    {'r0207_EXP_4' }
+    {'r0207_EXP_5' }
+    {'r0207_EXP_6' }
+    {'r0207_EXP_7' }
+    {'r0207_EXP_8' }
+    {'r0207_EXP_9' }
     {'r0213_EXP_2' }
     {'r0213_EXP_3' }
     {'r0213_EXP_4' }
+    {'r0220_EXP_2' }
+    {'r0220_EXP_3' }
+    {'r0220_EXP_4' }
+    {'r0220_EXP_5' }
+    {'r0220_EXP_6' }
+    {'r0220_EXP_7' }
+    {'r0220_EXP_8' }
+    {'r0220_EXP_9' }
+    {'r0239_EXP_2' }
+    {'r0239_EXP_3' }
+    {'r0239_EXP_4' }
+    {'r0239_EXP_5' }
+    {'r0255_EXP_2' }
+    {'r0255_EXP_3' }
+    {'r0255_EXP_4' }
+    {'r0255_EXP_5' }
+    {'r0256_EXP_2' }
+    {'r0256_EXP_3' }
+    {'r0310_EXP_2' }
+    {'r0310_EXP_3' }
+    {'r0311_EXP_2' }
+    {'r0311_EXP_3' }
+    {'r0311_EXP_4' }
+    {'r0318_EXP_2' }
+    {'r0318_EXP_3' }
+    {'r0318_EXP_4' }
+    {'r0320_EXP_2' }
+    {'r0320_EXP_3' }
+    {'r0320_EXP_4' }
+    {'r0487_EXP_2' }
+    {'r0506_EXP_2' }
     {'r0523_EXP_2' }
     {'r0534_EXP_2' }
     {'r0534_EXP_3' }
     {'r0573_EXP_2' }
     {'r0597_EXP_2' }
+    {'r0627_EXP_2' }
+    {'r0627_EXP_3' }
+    {'r0627_EXP_4' }
+    {'r0627_EXP_5' }
+    {'r0627_EXP_6' }
+    {'r0627_EXP_7' }
+    {'r0638_EXP_2' }
     {'r0726_EXP_2' }
     {'r0726_EXP_3' }
     {'r0726_EXP_4' }
@@ -1931,29 +2133,603 @@ removedRxns =
     {'r0726_EXP_10'}
     {'r0726_EXP_11'}
     {'r0728_EXP_2' }
+    {'r0743_EXP_2' }
+    {'r0743_EXP_3' }
+    {'r0749_EXP_2' }
     {'r0752_EXP_2' }
     {'r0752_EXP_3' }
     {'r0759_EXP_2' }
+    {'r0764_EXP_2' }
+    {'r0764_EXP_3' }
+    {'r0764_EXP_4' }
+    {'r0766_EXP_2' }
+    {'r0770_EXP_2' }
+    {'r0772_EXP_2' }
+    {'r0774_EXP_2' }
+    {'r0776_EXP_2' }
+    {'r0777_EXP_2' }
+    {'r0778_EXP_2' }
+    {'r0781_EXP_2' }
+    {'r0784_EXP_2' }
+    {'r0785_EXP_2' }
+    {'r0788_EXP_2' }
+    {'r0790_EXP_2' }
+    {'r0806_EXP_2' }
+    {'r0806_EXP_3' }
+    {'r0806_EXP_4' }
+    {'r1161_EXP_2' }
+    {'r1161_EXP_3' }
+    {'r1161_EXP_4' }
+    {'r1161_EXP_5' }
+    {'r0192_EXP_2' }
+    {'r0192_EXP_3' }
+    {'r0192_EXP_4' }
+    {'r0241_EXP_2' }
+    {'r0241_EXP_3' }
+    {'r0241_EXP_4' }
+    {'r0050'       }
+    {'r0050'       }
+    {'r0051'       }
+    {'r0069'       }
+    {'r0148'       }
+    {'r0159'       }
+    {'r0160'       }
+    {'r0177'       }
+    {'r0231'       }
+    {'r0288'       }
+    {'r0316'       }
+    {'r0332'       }
+    {'r0468'       }
+    {'r0488'       }
+    {'r0511'       }
     {'r0517'       }
     {'r0517'       }
+    {'r0536'       }
+    {'r0538'       }
+    {'r0611'       }
     {'r0631'       }
+    {'r0639'       }
     {'r0729'       }
+    {'r0744'       }
+    {'r0807'       }
+    {'r1157'       }
+    {'r0051_EXP_2' }
+    {'r0069_EXP_2' }
+    {'r0159_EXP_2' }
+    {'r0159_EXP_3' }
+    {'r0159_EXP_4' }
+    {'r0159_EXP_5' }
+    {'r0159_EXP_6' }
+    {'r0159_EXP_7' }
+    {'r0160_EXP_2' }
+    {'r0160_EXP_3' }
+    {'r0160_EXP_4' }
+    {'r0160_EXP_5' }
+    {'r0160_EXP_6' }
+    {'r0160_EXP_7' }
+    {'r0177_EXP_2' }
+    {'r0177_EXP_3' }
+    {'r0177_EXP_4' }
+    {'r0231_EXP_2' }
+    {'r0316_EXP_2' }
+    {'r0332_EXP_2' }
+    {'r0488_EXP_2' }
+    {'r0536_EXP_2' }
+    {'r0611_EXP_2' }
     {'r0631_EXP_2' }
+    {'r0639_EXP_2' }
     {'r0729_EXP_2' }
+    {'r0744_EXP_2' }
+    {'r0744_EXP_3' }
+    {'r0744_EXP_4' }
+    {'r0744_EXP_5' }
+    {'r0744_EXP_6' }
+    {'r0744_EXP_7' }
+    {'r0807_EXP_2' }
+    {'r0807_EXP_3' }
+    {'r0807_EXP_4' }
+    {'r0188'       }
+    {'r0289'       }
+    {'r0330'       }
+    {'r0333'       }
+    {'r0469'       }
+    {'r0512'       }
+    {'r0642'       }
+    {'r0188_EXP_2' }
+    {'r0188_EXP_3' }
+    {'r0188_EXP_4' }
+    {'r0188_EXP_5' }
+    {'r0188_EXP_6' }
+    {'r0188_EXP_7' }
+    {'r0324'       }
+    {'r0467'       }
+    {'r0640'       }
+    {'r0324_EXP_2' }
+    {'r0324_EXP_3' }
+    {'r0324_EXP_4' }
+    {'r0324_EXP_5' }
+    {'r0324_EXP_6' }
+    {'r0464'       }
+    {'r0643'       }
+    {'r0644'       }
+    {'r0645'       }
+    {'r0647'       }
+    {'r0647_EXP_2' }
+    {'r0641'       }
+    {'r0641_EXP_2' }
+    {'r0641_EXP_3' }
+
 
 %}
 
-exportToExcelFormat(modelAfmHomologyCello,'modelAfmHomologyCello.xlsx'); 
+modelAfmHomologyDeeploc = rmfield(modelAfmHomologyDeeploc,'geneComps');
+exportToExcelFormat(modelAfmHomologyDeeploc,'modelAfmHomologyDeeploc.xlsx'); 
 
-% for some reason running this last command results in a model with a lot
-% more reactions, are they coming from the GSS?
+% try contracting model, gap
+% fill using unmergedPch (careful with naming)
+
+% try same thing but with the modelAfmHomologyPreMerged
+
+%[modelAfmHomologyPreMergedCello, geneLocalization, transportStruct, score, removedRxns] = predictLocalization(modelAfmHomologyPreMerged ,GSSsubset,'cytop')
+
+%{
+
+WARNING: The model structure contains information about gene compartmentalization. This is not supported by this function. The geneComps field has been deleted
+
+WARNING: Reaction r0088 contains nested and/or-relations. Large risk of errors
+
+WARNING: Reaction r0093 contains nested and/or-relations. Large risk of errors
+
+WARNING: Reaction r0094 contains nested and/or-relations. Large risk of errors
+
+WARNING: Reaction r0095 contains nested and/or-relations. Large risk of errors
+
+WARNING: Reaction r0113 contains nested and/or-relations. Large risk of errors
+
+WARNING: Reaction r0122 contains nested and/or-relations. Large risk of errors
+
+WARNING: Reaction r0409 contains nested and/or-relations. Large risk of errors
+
+WARNING: Reaction r0425 contains nested and/or-relations. Large risk of errors
+
+WARNING: Reaction r0465 contains nested and/or-relations. Large risk of errors
+
+WARNING: Reaction r0631 contains nested and/or-relations. Large risk of errors
+
+WARNING: Reaction r0651 contains nested and/or-relations. Large risk of errors
+
+WARNING: Reaction r0673 contains nested and/or-relations. Large risk of errors
+
+WARNING: Reaction r0677 contains nested and/or-relations. Large risk of errors
+
+WARNING: Reaction r0702 contains nested and/or-relations. Large risk of errors
+
+WARNING: Reaction r0705 contains nested and/or-relations. Large risk of errors
 
 
-%modelAfmMerged = mergeModels({modelAfmHomologyMergeComps,modelAfmMCKegg});
-%[newConnected, cannotConnect, addedRxns, newModel, exitFlag]=fillGaps(modelAfmMerged,modelPch,false,true);
-%^ try specifying objective function for biomass equation,
-%modelAfmMerged/modelPch should both either be compartment merged or not.
+modelAfmHomologyPreMergedCello = 
 
+  struct with fields:
+
+                     id: 'afm'
+            description: 'Generated by getModelFromHomology using pch'
+             annotation: [1×1 struct]
+                   rxns: {1966×1 cell}
+                   mets: {906×1 cell}
+                      S: [906×1966 double]
+                     lb: [1966×1 double]
+                     ub: [1966×1 double]
+                    rev: [1966×1 double]
+                      c: [1966×1 double]
+                      b: [906×1 double]
+                  comps: {4×1 cell}
+              compNames: {4×1 cell}
+            compOutside: {4×1 cell}
+            compMiriams: {5×1 cell}
+               rxnNames: {1966×1 cell}
+                grRules: {1966×1 cell}
+             rxnGeneMat: [1966×800 double]
+             subSystems: {1966×1 cell}
+                eccodes: {1966×1 cell}
+                  genes: {800×1 cell}
+               metNames: {906×1 cell}
+               metComps: [906×1 double]
+                 inchis: {906×1 cell}
+            metFormulas: {906×1 cell}
+             metMiriams: {906×1 cell}
+               rxnNotes: {1966×1 cell}
+    rxnConfidenceScores: [1966×1 double]
+
+
+geneLocalization = 
+
+  struct with fields:
+
+    genes: {800×1 cell}
+    comps: {800×1 cell}
+
+
+transportStruct = 
+
+  struct with fields:
+
+      mets: {'N2-acetyl-L-ornithine'}
+    toComp: {'mito'}
+
+
+score = 
+
+  struct with fields:
+
+     totScore: 1.3988
+    geneScore: 548.5844
+    transCost: 2
+
+
+removedRxns =
+
+  352×1 cell array
+
+    {'r0065'       }
+    {'r0066'       }
+    {'r0071'       }
+    {'r0121'       }
+    {'r0155'       }
+    {'r0162'       }
+    {'r0162'       }
+    {'r0167'       }
+    {'r0168'       }
+    {'r0169'       }
+    {'r0170'       }
+    {'r0172'       }
+    {'r0174'       }
+    {'r0176'       }
+    {'r0194'       }
+    {'r0200'       }
+    {'r0202'       }
+    {'r0207'       }
+    {'r0213'       }
+    {'r0220'       }
+    {'r0239'       }
+    {'r0255'       }
+    {'r0256'       }
+    {'r0284'       }
+    {'r0284'       }
+    {'r0287'       }
+    {'r0301'       }
+    {'r0310'       }
+    {'r0311'       }
+    {'r0318'       }
+    {'r0320'       }
+    {'r0326'       }
+    {'r0334'       }
+    {'r0335'       }
+    {'r0356'       }
+    {'r0405'       }
+    {'r0449'       }
+    {'r0457'       }
+    {'r0463'       }
+    {'r0487'       }
+    {'r0506'       }
+    {'r0510'       }
+    {'r0514'       }
+    {'r0515'       }
+    {'r0516'       }
+    {'r0523'       }
+    {'r0534'       }
+    {'r0537'       }
+    {'r0539'       }
+    {'r0573'       }
+    {'r0597'       }
+    {'r0602'       }
+    {'r0603'       }
+    {'r0604'       }
+    {'r0610'       }
+    {'r0627'       }
+    {'r0630'       }
+    {'r0638'       }
+    {'r0726'       }
+    {'r0728'       }
+    {'r0743'       }
+    {'r0749'       }
+    {'r0752'       }
+    {'r0759'       }
+    {'r0763'       }
+    {'r0764'       }
+    {'r0766'       }
+    {'r0769'       }
+    {'r0770'       }
+    {'r0771'       }
+    {'r0772'       }
+    {'r0774'       }
+    {'r0776'       }
+    {'r0777'       }
+    {'r0778'       }
+    {'r0780'       }
+    {'r0781'       }
+    {'r0783'       }
+    {'r0784'       }
+    {'r0785'       }
+    {'r0786'       }
+    {'r0788'       }
+    {'r0790'       }
+    {'r0791'       }
+    {'r0796'       }
+    {'r0806'       }
+    {'r1152'       }
+    {'r1158'       }
+    {'r1159'       }
+    {'r1161'       }
+    {'r1162'       }
+    {'r0192'       }
+    {'r0241'       }
+    {'r0065_EXP_2' }
+    {'r0065_EXP_3' }
+    {'r0066_EXP_2' }
+    {'r0066_EXP_3' }
+    {'r0066_EXP_4' }
+    {'r0071_EXP_2' }
+    {'r0121_EXP_2' }
+    {'r0167_EXP_2' }
+    {'r0167_EXP_3' }
+    {'r0167_EXP_4' }
+    {'r0167_EXP_5' }
+    {'r0167_EXP_6' }
+    {'r0167_EXP_7' }
+    {'r0167_EXP_8' }
+    {'r0167_EXP_9' }
+    {'r0167_EXP_10'}
+    {'r0167_EXP_11'}
+    {'r0167_EXP_12'}
+    {'r0168_EXP_2' }
+    {'r0168_EXP_3' }
+    {'r0168_EXP_4' }
+    {'r0168_EXP_5' }
+    {'r0168_EXP_6' }
+    {'r0168_EXP_7' }
+    {'r0168_EXP_8' }
+    {'r0168_EXP_9' }
+    {'r0168_EXP_10'}
+    {'r0168_EXP_11'}
+    {'r0168_EXP_12'}
+    {'r0169_EXP_2' }
+    {'r0169_EXP_3' }
+    {'r0169_EXP_4' }
+    {'r0169_EXP_5' }
+    {'r0169_EXP_6' }
+    {'r0169_EXP_7' }
+    {'r0169_EXP_8' }
+    {'r0169_EXP_9' }
+    {'r0169_EXP_10'}
+    {'r0170_EXP_2' }
+    {'r0170_EXP_3' }
+    {'r0170_EXP_4' }
+    {'r0170_EXP_5' }
+    {'r0170_EXP_6' }
+    {'r0170_EXP_7' }
+    {'r0170_EXP_8' }
+    {'r0170_EXP_9' }
+    {'r0170_EXP_10'}
+    {'r0174_EXP_2' }
+    {'r0176_EXP_2' }
+    {'r0176_EXP_3' }
+    {'r0176_EXP_4' }
+    {'r0194_EXP_2' }
+    {'r0194_EXP_3' }
+    {'r0194_EXP_4' }
+    {'r0194_EXP_5' }
+    {'r0194_EXP_6' }
+    {'r0200_EXP_2' }
+    {'r0200_EXP_3' }
+    {'r0200_EXP_4' }
+    {'r0200_EXP_5' }
+    {'r0200_EXP_6' }
+    {'r0200_EXP_7' }
+    {'r0200_EXP_8' }
+    {'r0200_EXP_9' }
+    {'r0200_EXP_10'}
+    {'r0202_EXP_2' }
+    {'r0202_EXP_3' }
+    {'r0202_EXP_4' }
+    {'r0202_EXP_5' }
+    {'r0207_EXP_2' }
+    {'r0207_EXP_3' }
+    {'r0207_EXP_4' }
+    {'r0207_EXP_5' }
+    {'r0207_EXP_6' }
+    {'r0207_EXP_7' }
+    {'r0207_EXP_8' }
+    {'r0207_EXP_9' }
+    {'r0213_EXP_2' }
+    {'r0213_EXP_3' }
+    {'r0213_EXP_4' }
+    {'r0220_EXP_2' }
+    {'r0220_EXP_3' }
+    {'r0220_EXP_4' }
+    {'r0220_EXP_5' }
+    {'r0220_EXP_6' }
+    {'r0220_EXP_7' }
+    {'r0220_EXP_8' }
+    {'r0220_EXP_9' }
+    {'r0239_EXP_2' }
+    {'r0239_EXP_3' }
+    {'r0239_EXP_4' }
+    {'r0239_EXP_5' }
+    {'r0255_EXP_2' }
+    {'r0255_EXP_3' }
+    {'r0255_EXP_4' }
+    {'r0255_EXP_5' }
+    {'r0256_EXP_2' }
+    {'r0256_EXP_3' }
+    {'r0310_EXP_2' }
+    {'r0310_EXP_3' }
+    {'r0311_EXP_2' }
+    {'r0311_EXP_3' }
+    {'r0311_EXP_4' }
+    {'r0318_EXP_2' }
+    {'r0318_EXP_3' }
+    {'r0318_EXP_4' }
+    {'r0320_EXP_2' }
+    {'r0320_EXP_3' }
+    {'r0320_EXP_4' }
+    {'r0487_EXP_2' }
+    {'r0506_EXP_2' }
+    {'r0523_EXP_2' }
+    {'r0534_EXP_2' }
+    {'r0534_EXP_3' }
+    {'r0573_EXP_2' }
+    {'r0597_EXP_2' }
+    {'r0627_EXP_2' }
+    {'r0627_EXP_3' }
+    {'r0627_EXP_4' }
+    {'r0627_EXP_5' }
+    {'r0627_EXP_6' }
+    {'r0627_EXP_7' }
+    {'r0638_EXP_2' }
+    {'r0726_EXP_2' }
+    {'r0726_EXP_3' }
+    {'r0726_EXP_4' }
+    {'r0726_EXP_5' }
+    {'r0726_EXP_6' }
+    {'r0726_EXP_7' }
+    {'r0726_EXP_8' }
+    {'r0726_EXP_9' }
+    {'r0726_EXP_10'}
+    {'r0726_EXP_11'}
+    {'r0728_EXP_2' }
+    {'r0743_EXP_2' }
+    {'r0743_EXP_3' }
+    {'r0749_EXP_2' }
+    {'r0752_EXP_2' }
+    {'r0752_EXP_3' }
+    {'r0759_EXP_2' }
+    {'r0764_EXP_2' }
+    {'r0764_EXP_3' }
+    {'r0764_EXP_4' }
+    {'r0766_EXP_2' }
+    {'r0770_EXP_2' }
+    {'r0772_EXP_2' }
+    {'r0774_EXP_2' }
+    {'r0776_EXP_2' }
+    {'r0777_EXP_2' }
+    {'r0778_EXP_2' }
+    {'r0781_EXP_2' }
+    {'r0784_EXP_2' }
+    {'r0785_EXP_2' }
+    {'r0788_EXP_2' }
+    {'r0790_EXP_2' }
+    {'r0806_EXP_2' }
+    {'r0806_EXP_3' }
+    {'r0806_EXP_4' }
+    {'r1161_EXP_2' }
+    {'r1161_EXP_3' }
+    {'r1161_EXP_4' }
+    {'r1161_EXP_5' }
+    {'r0192_EXP_2' }
+    {'r0192_EXP_3' }
+    {'r0192_EXP_4' }
+    {'r0241_EXP_2' }
+    {'r0241_EXP_3' }
+    {'r0241_EXP_4' }
+    {'r0050'       }
+    {'r0050'       }
+    {'r0051'       }
+    {'r0069'       }
+    {'r0148'       }
+    {'r0159'       }
+    {'r0160'       }
+    {'r0177'       }
+    {'r0231'       }
+    {'r0288'       }
+    {'r0316'       }
+    {'r0332'       }
+    {'r0468'       }
+    {'r0488'       }
+    {'r0511'       }
+    {'r0517'       }
+    {'r0517'       }
+    {'r0536'       }
+    {'r0538'       }
+    {'r0611'       }
+    {'r0631'       }
+    {'r0639'       }
+    {'r0729'       }
+    {'r0744'       }
+    {'r0807'       }
+    {'r1157'       }
+    {'r0051_EXP_2' }
+    {'r0069_EXP_2' }
+    {'r0159_EXP_2' }
+    {'r0159_EXP_3' }
+    {'r0159_EXP_4' }
+    {'r0159_EXP_5' }
+    {'r0159_EXP_6' }
+    {'r0159_EXP_7' }
+    {'r0160_EXP_2' }
+    {'r0160_EXP_3' }
+    {'r0160_EXP_4' }
+    {'r0160_EXP_5' }
+    {'r0160_EXP_6' }
+    {'r0160_EXP_7' }
+    {'r0177_EXP_2' }
+    {'r0177_EXP_3' }
+    {'r0177_EXP_4' }
+    {'r0231_EXP_2' }
+    {'r0316_EXP_2' }
+    {'r0332_EXP_2' }
+    {'r0488_EXP_2' }
+    {'r0536_EXP_2' }
+    {'r0611_EXP_2' }
+    {'r0631_EXP_2' }
+    {'r0639_EXP_2' }
+    {'r0729_EXP_2' }
+    {'r0744_EXP_2' }
+    {'r0744_EXP_3' }
+    {'r0744_EXP_4' }
+    {'r0744_EXP_5' }
+    {'r0744_EXP_6' }
+    {'r0744_EXP_7' }
+    {'r0807_EXP_2' }
+    {'r0807_EXP_3' }
+    {'r0807_EXP_4' }
+    {'r0188'       }
+    {'r0289'       }
+    {'r0330'       }
+    {'r0333'       }
+    {'r0469'       }
+    {'r0512'       }
+    {'r0642'       }
+    {'r0188_EXP_2' }
+    {'r0188_EXP_3' }
+    {'r0188_EXP_4' }
+    {'r0188_EXP_5' }
+    {'r0188_EXP_6' }
+    {'r0188_EXP_7' }
+    {'r0324'       }
+    {'r0467'       }
+    {'r0640'       }
+    {'r0324_EXP_2' }
+    {'r0324_EXP_3' }
+    {'r0324_EXP_4' }
+    {'r0324_EXP_5' }
+    {'r0324_EXP_6' }
+    {'r0464'       }
+    {'r0643'       }
+    {'r0644'       }
+    {'r0645'       }
+    {'r0647'       }
+    {'r0647_EXP_2' }
+    {'r0641'       }
+    {'r0641_EXP_2' }
+    {'r0641_EXP_3' }
+
+%}
+
+
+% localization is kinda jank, try using wolf localization on afm first,
+% then on pch to get sense of how well it performs
+% check (1.3.3.6 E.C., beta ox in peroxisome and ppp in cytosol)
+%otherwise try CELLO on pch 
 
 %% 8. BIOMASS EQUATION checkout BOF dat
 
