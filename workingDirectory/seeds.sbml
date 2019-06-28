@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<sbml xmlns="http://www.sbml.org/sbml/level2" level="2" version="1">
+    <model id="hpo">
+        <listOfCompartments>
+            <compartment id="c" name="cytoplasm"/>
+            <compartment id="ce" name="cell envelope"/>
+            <compartment id="e" name="extracellular"/>
+            <compartment id="er" name="endoplasmic reticulum"/>
+            <compartment id="erm" name="endoplasmic reticulum membrane"/>
+            <compartment id="g" name="Golgi"/>
+            <compartment id="gm" name="Golgi membrane"/>
+            <compartment id="lp" name="lipid particle"/>
+            <compartment id="m" name="mitochondrion"/>
+            <compartment id="mm" name="mitochondrial membrane"/>
+            <compartment id="n" name="nucleus"/>
+            <compartment id="p" name="peroxisome"/>
+            <compartment id="v" name="vacuole"/>
+            <compartment id="vm" name="vacuolar membrane"/>
+        </listOfCompartments>
+        <listOfSpecies>
+            <species id="M_s_0394" name="ADP"/>
+            <species id="M_s_0397" name="ADP"/>
+            <species id="M_s_0458" name="carbon dioxide"/>
+            <species id="M_s_0796" name="H+"/>
+            <species id="M_s_0805" name="H2O"/>
+            <species id="M_s_1198" name="NAD"/>
+            <species id="M_s_0420" name="ammonium"/>
+            <species id="M_s_1277" name="oxygen"/>
+            <species id="M_s_1324" name="phosphate"/>
+            <species id="M_s_1468" name="sulphate"/>
+            <species id="M_s_0565" name="D-glucose"/>
+            <species id="M_s_0452" name="biotin"/>
+            <species id="M_s_0529" name="coenzyme A"/>
+            <species id="M_s_0925" name="iron(2+)"/>
+            <species id="M_s_1616" name="TRX1"/>
+            <species id="M_s_1582" name="tRNA(Ala)"/>
+            <species id="M_s_1583" name="tRNA(Arg)"/>
+            <species id="M_s_1585" name="tRNA(Asn)"/>
+            <species id="M_s_1587" name="tRNA(Asp)"/>
+            <species id="M_s_1589" name="tRNA(Cys)"/>
+            <species id="M_s_1590" name="tRNA(Gln)"/>
+            <species id="M_s_1591" name="tRNA(Glu)"/>
+            <species id="M_s_1593" name="tRNA(Gly)"/>
+            <species id="M_s_1594" name="tRNA(His)"/>
+            <species id="M_s_1596" name="tRNA(Ile)"/>
+            <species id="M_s_1598" name="tRNA(Leu)"/>
+            <species id="M_s_1600" name="tRNA(Lys)"/>
+            <species id="M_s_1602" name="tRNA(Met)"/>
+            <species id="M_s_1604" name="tRNA(Phe)"/>
+            <species id="M_s_1606" name="tRNA(Pro)"/>
+            <species id="M_s_1607" name="tRNA(Ser)"/>
+            <species id="M_s_1608" name="tRNA(Thr)"/>
+            <species id="M_s_1610" name="tRNA(Trp)"/>
+            <species id="M_s_1612" name="tRNA(Tyr)"/>
+            <species id="M_s_1614" name="tRNA(Val)"/>
+        </listOfSpecies>
+    </model>
+</sbml>

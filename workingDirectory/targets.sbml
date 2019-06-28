@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<sbml xmlns="http://www.sbml.org/sbml/level2" level="2" version="1">
+    <model id="hpo">
+        <listOfCompartments>
+            <compartment id="c" name="cytoplasm"/>
+            <compartment id="ce" name="cell envelope"/>
+            <compartment id="e" name="extracellular"/>
+            <compartment id="er" name="endoplasmic reticulum"/>
+            <compartment id="erm" name="endoplasmic reticulum membrane"/>
+            <compartment id="g" name="Golgi"/>
+            <compartment id="gm" name="Golgi membrane"/>
+            <compartment id="lp" name="lipid particle"/>
+            <compartment id="m" name="mitochondrion"/>
+            <compartment id="mm" name="mitochondrial membrane"/>
+            <compartment id="n" name="nucleus"/>
+            <compartment id="p" name="peroxisome"/>
+            <compartment id="v" name="vacuole"/>
+            <compartment id="vm" name="vacuolar membrane"/>
+        </listOfCompartments>
+        <listOfSpecies>
+            <species id="M_s_0001" name="(1->3)-beta-D-glucan"/>
+            <species id="M_s_0004" name="(1->6)-beta-D-glucan"/>
+            <species id="M_s_0404" name="Ala-tRNA(Ala)"/>
+            <species id="M_s_0423" name="AMP"/>
+            <species id="M_s_0428" name="Arg-tRNA(Arg)"/>
+            <species id="M_s_0430" name="Asn-tRNA(Asn)"/>
+            <species id="M_s_0432" name="Asp-tRNA(Asp)"/>
+            <species id="M_s_0434" name="ATP"/>
+            <species id="M_s_0526" name="CMP"/>
+            <species id="M_s_0542" name="Cys-tRNA(Cys)"/>
+            <species id="M_s_0584" name="dAMP"/>
+            <species id="M_s_0589" name="dCMP"/>
+            <species id="M_s_0615" name="dGMP"/>
+            <species id="M_s_0649" name="dTMP"/>
+            <species id="M_s_0666" name="ergosterol"/>
+            <species id="M_s_0747" name="Gln-tRNA(Gln)"/>
+            <species id="M_s_0748" name="Glu-tRNA(Glu)"/>
+            <species id="M_s_0757" name="Gly-tRNA(Gly)"/>
+            <species id="M_s_0773" name="glycogen"/>
+            <species id="M_s_0782" name="GMP"/>
+            <species id="M_s_0803" name="H2O"/>
+            <species id="M_s_0832" name="His-tRNA(His)"/>
+            <species id="M_s_0847" name="Ile-tRNA(Ile)"/>
+            <species id="M_s_1077" name="Leu-tRNA(Leu)"/>
+            <species id="M_s_1099" name="Lys-tRNA(Lys)"/>
+            <species id="M_s_1148" name="Met-tRNA(Met)"/>
+            <species id="M_s_1314" name="Phe-tRNA(Phe)"/>
+            <species id="M_s_1379" name="Pro-tRNA(Pro)"/>
+            <species id="M_s_1405" name="riboflavin"/>
+            <species id="M_s_1428" name="Ser-tRNA(Ser)"/>
+            <species id="M_s_1467" name="sulphate"/>
+            <species id="M_s_1491" name="Thr-tRNA(Thr)"/>
+            <species id="M_s_1520" name="trehalose"/>
+            <species id="M_s_1527" name="Trp-tRNA(Trp)"/>
+            <species id="M_s_1533" name="Tyr-tRNA(Tyr)"/>
+            <species id="M_s_1545" name="UMP"/>
+            <species id="M_s_1561" name="Val-tRNA(Val)"/>
+            <species id="M_s_3746" name="lipid backbone"/>
+            <species id="M_s_3747" name="lipid chain"/>
+            <species id="M_s_0089" name="1-phosphatidyl-1D-myo-inositol backbone"/>
+            <species id="M_s_0672" name="ergosterol ester backbone"/>
+            <species id="M_s_0694" name="fatty acid backbone"/>
+            <species id="M_s_1096" name="lipid"/>
+            <species id="M_s_1107" name="mannan"/>
+            <species id="M_s_1337" name="phosphatidyl-L-serine backbone"/>
+            <species id="M_s_1346" name="phosphatidylcholine backbone"/>
+            <species id="M_s_1351" name="phosphatidylethanolamine backbone"/>
+            <species id="M_s_1524" name="triglyceride backbone"/>
+            <species id="M_s_3714" name="heme a"/>
+            <species id="M_s_3717" name="protein"/>
+            <species id="M_s_3718" name="carbohydrate"/>
+            <species id="M_s_3719" name="RNA"/>
+            <species id="M_s_3720" name="DNA"/>
+            <species id="M_s_3740" name="C16:0 chain"/>
+            <species id="M_s_3741" name="C16:1 chain"/>
+            <species id="M_s_3742" name="C18:0 chain"/>
+            <species id="M_s_3743" name="C18:1 chain"/>
+        </listOfSpecies>
+    </model>
+</sbml>
