@@ -1,4 +1,4 @@
-lipid	backboneId	backboneMW	comps	chains											
+metName	bbID	bbMW	comps	chains											
 "phosphatidyl-L-serine (1-CHAIN1, 2-CHAIN2)"	s_3710	223.12	erm	"16:0,18:1"	"16:0,18:2"	"18:0,18:1"	"18:0,18:2"	"18:1,18:1"	"18:1,18:2"						
 "phosphatidylethanolamine (1-CHAIN1, 2-CHAIN2)"	s_1351	179.11	erm	"16:0,18:1"	"16:0,18:2"	"18:0,18:1"	"18:0,18:2"	"18:1,18:1"	"18:1,18:2"						
 "1-phosphatidyl-1D-myo-inositol (1-CHAIN1, 2-CHAIN2)"	s_0089	298.18	erm	"16:0,18:1"	"16:0,18:2"	"18:0,18:1"	"18:0,18:2"	"18:1,18:1"	"18:1,18:2"						
