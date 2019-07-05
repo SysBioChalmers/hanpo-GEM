@@ -89,15 +89,6 @@ no redundant indication of compartments in the metabolite IDs that we
 otherwise would have wanted to clear out.
 %}
 
-% Ensure that the lower bounds of non-growth associated maintenance and
-% biomass formation reactons are set to zero, to make sure we are will not
-% force our draft model to produce biomass or regenerate ATP at rates that
-% it cannot support.
-modelSce  = setParam(modelSce,  'lb', {'r_4041', 'r_4046'}, 0);
-modelSce  = setParam(modelSce,  'ub', {'r_4041', 'r_4046'}, 1000);
-modelRhto = setParam(modelRhto, 'lb', {'r_4041', 'r_4046'}, 0);
-modelRhto = setParam(modelRhto, 'ub', {'r_4041', 'r_4046'}, 1000);
-
 % It can be useful to store intermediate states of the MATLAB environment.
 % We will store these in the 'scrap' folder, loading them the next time
 % will then allow us to continue from this point.
@@ -127,7 +118,7 @@ mediumComps = {'r_1654', 'r_1672', 'r_1808', 'r_1832', 'r_1861', ...
 model = addRxnsGenesMets(model, modelSce, mediumComps);
 
 % You might want to inspect your first draft model!
-exportToExcelFormat(model, [scrap 'hanpo_step3.3.xlsx']);
+exportToExcelFormat(model, [root 'scrap/hanpo_step3.3.xlsx']);
 
 % Save workspace
 save([root 'scrap/homology.mat'])
@@ -332,22 +323,64 @@ model.description             = 'Hansenula polymorpha-GEM';
 run([scripts 'curation/cleanupModel']);
 
 newCommit(model);
-%% MANUAL CURATION
-% Growth on methanol and glucose mixture. Add reversible exchange reactions
-model = addRxnsGenesMets(model,modelSce,{'r_1714','r_4494'});
-model = setParam(model,'rev',{'r_1714','r_4494'},1);
-model = setParam(model,'lb',{'r_1714','r_4494'},0);
-model = setParam(model,'lb','r_1808',0); % No glycerol
+%% 3.8 SIMULATIONS
+% To perform simple FBA, use solveLP
+sol = solveLP(model,1);
+% Flux distributions can be displayed by printFluxes:
+printFluxes(model, sol.x, false);
 
-[model2,gam] = fitGAM(model);
+%% 3.9 MANUAL CURATION
+% Modify gene associations of gap-filled reactions. Find reactions
+% annotationed with R. toruloides genes.
+rhtoRxns = find(contains(model.grRules,'RHTO'));
+model.rxnNames(rhtoRxns);
+model.grRules(rhtoRxns);
 
-% Curate some other reactions
+% By BLAST we identify that the gene RHTO_03911 has a homolog in H.
+% polymorpha: Hanpo2_15704. We will therefore replace the current grRule
+% with the H. polymorpha gene:
+model = changeGrRules(model, 'y300009', 'Hanpo2_15704', true);
 
-% Save workspace
-save([root 'scrap/curation.mat'])
-% load([root 'scrap/curation.mat'])
+% Curate the model so it can support growth on methanol. Reactions required
+% for methanol assimilation:
+% 1. methanol oxidase:              methanol[p] + oxygen[p] => formaldehyde[p] + hydrogen peroxide[p]
+% 2. dihydroxyacetone synthase:     formaldehyde[p] + D-xylulose 5-phosphate[p] => glyceraldehyde 3-phosphate[p] + glycerone[p]
+% 3. formate dehydrogenase:         formate[c] + NAD[c] => carbon dioxide[c] + NADH[c]
+% 4. peroxisomal catalase:          2 hydrogen peroxide[p] => 2 H2O[p] + oxygen[p]
+% 5. dihydroxyacetone kinase:       ATP[c] + glycerone[c] => ADP[c] + dihydroxyacetone phosphate[c] + H+[c]
+% Reactions 3-5 are already present in model, manually add reactions 1 & 2:
+rxnsToAdd.rxns      = {'MOX', 'DAS'};
+rxnsToAdd.equations = {'methanol[p] + oxygen[p] => formaldehyde[p] + hydrogen peroxide[p]',...
+'formaldehyde[p] + D-xylulose 5-phosphate[p] => glyceraldehyde 3-phosphate[p] + glycerone[p]'};
+rxnsToAdd.rxnNames  = {'methanol oxidase','dihydroxyacetone synthase'};
+rxnsToAdd.lb = [0,0];
+rxnsToAdd.ub = [1000,1000];
+rxnsToAdd.eccodes  = {'1.1.3.13','2.2.1.3'};
+rxnsToAdd.grRules  = {'Hanpo2_76277','Hanpo2_95557'};
+rxnsToAdd.rxnNotes = {'Methanol metabolism reaction added by manual curation',
+'Methanol metabolism reaction added by manual curation'};
 
+model = addRxns(model,rxnsToAdd,3,'',true,true);
 
-%% 3.7 SIMULATIONS
+% Add methanol (and glucose, was also absent) exchange reactions, and
+% diffusion of oxygen and H2O to peroxisome:
+model = addRxnsGenesMets(model,modelSce,{'r_4494','r_4391','r_1714','r_1980','r_2098'});
+model = setParam(model, 'rev', {'r_4494', 'r_4391'}, 1);
+model = setParam(model, 'lb', {'r_4494', 'r_4391'}, -1000);
 
+% Add transport reactions between cytoplasm and peroxisome
+model = addTransport(model,'c','p',{'D-xylulose 5-phosphate'...
+'methanol', 'glycerone', 'glyceraldehyde 3-phosphate'},true,false,'t_');
 
+% Confirm that growth on methanol is possible
+% Ensure glycerol/other carbon source uptake is not allowed
+model = setParam(model,'eq',{'r_1808','r_1714'},0);
+
+% Ensure methanol uptake is allowed
+model = setParam(model,'lb','r_4494',-1);
+
+% Verify that model can grow
+sol=solveLP(model,1)
+printFluxes(model,sol.x)
+
+newCommit(model);

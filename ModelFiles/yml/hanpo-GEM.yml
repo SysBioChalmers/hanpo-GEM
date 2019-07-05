@@ -1101,6 +1101,50 @@
     - name: phosphatidylcholine (1-18:1, 2-18:2)
     - compartment: mm
   - !!omap
+    - id: m_0345
+    - name: D-xylulose 5-phosphate
+    - compartment: p
+    - formula: C5H9O8P
+    - charge: -2
+    - annotation: !!omap
+      - chebi: CHEBI:57737
+      - kegg.compound: C00231
+      - sbo: SBO:0000247
+  - !!omap
+    - id: m_0346
+    - name: formaldehyde
+    - compartment: p
+    - formula: CH2O
+    - charge: 0
+    - annotation: !!omap
+      - chebi: CHEBI:16842
+      - kegg.compound: C00067
+      - sbo: SBO:0000247
+  - !!omap
+    - id: m_0347
+    - name: glyceraldehyde 3-phosphate
+    - compartment: p
+    - formula: C3H5O6P
+    - charge: -2
+    - annotation: !!omap
+      - chebi: CHEBI:58027
+      - kegg.compound: C00661
+      - sbo: SBO:0000247
+  - !!omap
+    - id: m_0348
+    - name: glycerone
+    - compartment: p
+    - formula: C3H6O3
+    - charge: 0
+    - annotation: !!omap
+      - chebi: CHEBI:16016
+      - kegg.compound: C00184
+      - sbo: SBO:0000247
+  - !!omap
+    - id: m_0349
+    - name: methanol
+    - compartment: p
+  - !!omap
     - id: s_0001
     - name: (1->3)-beta-D-glucan
     - compartment: ce
@@ -18769,7 +18813,53 @@
       - kegg.compound: C00536
       - metanetx.chemical: MNXM332
       - sbo: SBO:0000247
+  - !!omap
+    - id: s_4123
+    - name: methanol
+    - compartment: c
+    - formula: CH4O
+    - annotation: !!omap
+      - chebi: CHEBI:17790
+      - kegg.compound: C00132
+      - metanetx.chemical: MNXM157
+      - sbo: SBO:0000247
+  - !!omap
+    - id: s_4124
+    - name: methanol
+    - compartment: e
+    - formula: CH4O
+    - annotation: !!omap
+      - chebi: CHEBI:17790
+      - kegg.compound: C00132
+      - metanetx.chemical: MNXM157
+      - sbo: SBO:0000247
 - reactions:
+  - !!omap
+    - id: DAS
+    - name: dihydroxyacetone synthase
+    - metabolites: !!omap
+      - m_0345: -1
+      - m_0346: -1
+      - m_0347: 1
+      - m_0348: 1
+    - lower_bound: 0
+    - upper_bound: 1000
+    - gene_reaction_rule: Hanpo2_95557
+    - annotation: !!omap
+      - ec-code: 2.2.1.3
+  - !!omap
+    - id: MOX
+    - name: methanol oxidase
+    - metabolites: !!omap
+      - m_0346: 1
+      - m_0349: -1
+      - s_0840: 1
+      - s_1279: -1
+    - lower_bound: 0
+    - upper_bound: 1000
+    - gene_reaction_rule: Hanpo2_76277
+    - annotation: !!omap
+      - ec-code: 1.1.3.13
   - !!omap
     - id: r_0003
     - name: (R,R)-butanediol dehydrogenase
@@ -29684,6 +29774,27 @@
       - sbo: SBO:0000176
     - confidence_score: 2
   - !!omap
+    - id: r_0738
+    - name: mevalonate kinase (UTP)
+    - metabolites: !!omap
+      - s_0019: 1
+      - s_0028: -1
+      - s_0794: 1
+      - s_1538: 1
+      - s_1559: -1
+    - lower_bound: 0
+    - upper_bound: 1000
+    - gene_reaction_rule: YMR208W
+    - subsystem:
+        - Terpenoid backbone biosynthesis
+        - Biosynthesis of secondary metabolites
+        - Biosynthesis of antibiotics
+        - Peroxisome
+    - annotation: !!omap
+      - ec-code: 2.7.1.36
+      - sbo: SBO:0000176
+    - confidence_score: 2
+  - !!omap
     - id: r_0739
     - name: mevalonate pyrophoshate decarboxylase
     - metabolites: !!omap
@@ -35839,17 +35950,6 @@
       - sbo: SBO:0000655
     - confidence_score: 0
   - !!omap
-    - id: r_1585
-    - name: 2-oxobutanoate transporter
-    - metabolites: !!omap
-      - s_0178: -1
-      - s_0179: 1
-    - lower_bound: -1000
-    - upper_bound: 1000
-    - annotation: !!omap
-      - sbo: SBO:0000655
-    - confidence_score: 0
-  - !!omap
     - id: r_1596
     - name: 3-methyl-2-oxopentanoate transport
     - metabolites: !!omap
@@ -36010,6 +36110,14 @@
       - sbo: SBO:0000655
     - confidence_score: 0
   - !!omap
+    - id: r_1714
+    - name: D-glucose exchange
+    - metabolites: !!omap
+      - s_0565: -1
+    - lower_bound: 0
+    - upper_bound: 0
+    - confidence_score: 0
+  - !!omap
     - id: r_1729
     - name: deoxyadenylate kinase
     - metabolites: !!omap
@@ -36099,8 +36207,8 @@
     - name: glycerol exchange
     - metabolites: !!omap
       - s_0766: -1
-    - lower_bound: -1
-    - upper_bound: 1000
+    - lower_bound: 0
+    - upper_bound: 0
     - confidence_score: 0
   - !!omap
     - id: r_1811
@@ -36265,6 +36373,15 @@
       - sbo: SBO:0000655
     - confidence_score: 0
   - !!omap
+    - id: r_1980
+    - name: O2 transport
+    - metabolites: !!omap
+      - s_1275: -1
+      - s_1279: 1
+    - lower_bound: -1000
+    - upper_bound: 1000
+    - confidence_score: 0
+  - !!omap
     - id: r_1992
     - name: oxygen exchange
     - metabolites: !!omap
@@ -36418,6 +36535,17 @@
       - sbo: SBO:0000176
     - confidence_score: 2
   - !!omap
+    - id: r_2072
+    - name: threonine transport
+    - metabolites: !!omap
+      - s_1045: -1
+      - s_1047: 1
+    - lower_bound: 0
+    - upper_bound: 1000
+    - annotation: !!omap
+      - sbo: SBO:0000655
+    - confidence_score: 0
+  - !!omap
     - id: r_2079
     - name: trehalose transporter
     - metabolites: !!omap
@@ -36464,6 +36592,15 @@
     - upper_bound: 1000
     - annotation: !!omap
       - sbo: SBO:0000655
+    - confidence_score: 0
+  - !!omap
+    - id: r_2098
+    - name: water diffusion
+    - metabolites: !!omap
+      - s_0803: -1
+      - s_0809: 1
+    - lower_bound: -1000
+    - upper_bound: 1000
     - confidence_score: 0
   - !!omap
     - id: r_2100
@@ -49163,6 +49300,20 @@
     - upper_bound: 1000
     - confidence_score: 0
   - !!omap
+    - id: r_4046_sce
+    - name: non-growth associated maintenance reaction
+    - metabolites: !!omap
+      - s_0394: 1
+      - s_0434: -1
+      - s_0794: 1
+      - s_0803: -1
+      - s_1322: 1
+    - lower_bound: 0.7
+    - upper_bound: 0.7
+    - annotation: !!omap
+      - sbo: SBO:0000630
+    - confidence_score: 0
+  - !!omap
     - id: r_4047
     - name: protein pseudoreaction
     - metabolites: !!omap
@@ -51747,6 +51898,15 @@
       - sbo: SBO:0000176
     - confidence_score: 2
   - !!omap
+    - id: r_4391
+    - name: Methanol diffusion
+    - metabolites: !!omap
+      - s_4123: -1
+      - s_4124: 1
+    - lower_bound: -1000
+    - upper_bound: 1000
+    - confidence_score: 0
+  - !!omap
     - id: r_4403
     - name: Triphosphate phosphohydrolase
     - metabolites: !!omap
@@ -51797,6 +51957,14 @@
       - metanetx.reaction: MNXR104382
       - sbo: SBO:0000176
     - confidence_score: 2
+  - !!omap
+    - id: r_4494
+    - name: methanol exchange
+    - metabolites: !!omap
+      - s_4124: -1
+    - lower_bound: -1
+    - upper_bound: 1000
+    - confidence_score: 0
   - !!omap
     - id: t_0001
     - name: NADH dehydrogenase (complex I)
@@ -56670,6 +56838,46 @@
       - sbo: SBO:0000395
     - confidence_score: 1
   - !!omap
+    - id: t_0684
+    - name: D-xylulose 5-phosphate transport, cytoplasm-peroxisome
+    - metabolites: !!omap
+      - m_0345: 1
+      - s_0581: -1
+    - lower_bound: -1000
+    - upper_bound: 1000
+    - subsystem: Transport between c and p
+    - confidence_score: 1
+  - !!omap
+    - id: t_0685
+    - name: methanol transport, cytoplasm-peroxisome
+    - metabolites: !!omap
+      - m_0349: 1
+      - s_4123: -1
+    - lower_bound: -1000
+    - upper_bound: 1000
+    - subsystem: Transport between c and p
+    - confidence_score: 1
+  - !!omap
+    - id: t_0686
+    - name: glycerone transport, cytoplasm-peroxisome
+    - metabolites: !!omap
+      - m_0348: 1
+      - s_0771: -1
+    - lower_bound: -1000
+    - upper_bound: 1000
+    - subsystem: Transport between c and p
+    - confidence_score: 1
+  - !!omap
+    - id: t_0687
+    - name: glyceraldehyde 3-phosphate transport, cytoplasm-peroxisome
+    - metabolites: !!omap
+      - m_0347: 1
+      - s_0764: -1
+    - lower_bound: -1000
+    - upper_bound: 1000
+    - subsystem: Transport between c and p
+    - confidence_score: 1
+  - !!omap
     - id: y200002
     - name: mannitol dehydrogenase
     - metabolites: !!omap
@@ -56754,7 +56962,7 @@
       - s_2821: -1
     - lower_bound: 0
     - upper_bound: 1000
-    - gene_reaction_rule: RHTO_03911
+    - gene_reaction_rule: Hanpo2_15704
     - subsystem: Fatty acid elongation
     - annotation: !!omap
       - ec-code: 1.14.19.1
@@ -57978,6 +58186,8 @@
     - id: Hanpo2_76106
   - !!omap
     - id: Hanpo2_76258
+  - !!omap
+    - id: Hanpo2_76277
   - !!omap
     - id: Hanpo2_76299
   - !!omap
