@@ -1,4 +1,4 @@
-metabolite,metID,pseudoreaction,coeff
+﻿metabolite,metID,pseudoreaction,coeff
 dAMP,s_0584,DNA,-0.001893797
 dCMP,s_0589,DNA,-0.001738376
 dGMP,s_0615,DNA,-0.001738376
@@ -63,3 +63,9 @@ C18:0 chain,s_3742,chain,-0.001559704
 C18:1 chain,s_3743,chain,-0.006280971
 C18:2 chain,m_0128,chain,-0.006976515
 lipid chain,s_3747,chain,1
+glycogen,s_0773,carbohydrate,-0.562000444
+mannan,s_1107,carbohydrate,-1.960757105
+trehalose,s_1520,carbohydrate,-0.228603314
+(1->3)-beta-D-glucan,s_0001,carbohydrate,-0.434336146
+(1->6)-beta-D-glucan,s_0004,carbohydrate,-0.434336146
+carbohydrate,s_3718,carbohydrate,1

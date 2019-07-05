@@ -11,7 +11,7 @@
 % with this script.
 clear; clc;
 if ~exist([pwd() '\reconstructionProtocol.m']); error(['Make sure that '...
-        'your Current Folder is the one containing this Matlab script!']); end
+        'your Current Folder is the one containing the reconstructionProtocol file.']); end
 cd ../;  root = [pwd() '/'];
 data    = [root 'ComplementaryData/'];
 scripts = [root 'ComplementaryScripts/'];
@@ -175,6 +175,12 @@ indexes = find(contains(BM.pseudorxn, 'AA'));
 equations.mets          = BM.mets(indexes);
 equations.stoichCoeffs  = BM.coeff(indexes);
 model = changeRxns(model, 'r_4047', equations, 1);
+
+% Carbohydrates
+indexes = find(contains(BM.pseudorxn, 'carbohydrate'));
+equations.mets          = BM.mets(indexes);
+equations.stoichCoeffs  = BM.coeff(indexes);
+model = changeRxns(model, 'r_4048', equations, 1);
 
 % Lipid backbones
 indexes = find(contains(BM.pseudorxn, 'backbone'));
