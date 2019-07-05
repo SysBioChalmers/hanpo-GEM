@@ -276,6 +276,7 @@ model = setParam(model,'lb','r_1808',-10);
 modelSce2 = removeReactions(modelSce,getExchangeRxns(modelSce,'both'),true,true,true);
 biomassRxns = modelSce2.rxns(endsWith(modelSce2.rxnNames,'pseudoreaction'));
 modelSce2 = removeReactions(modelSce2,biomassRxns,true,true,true);
+modelSce2 = removeReactions(modelSce2,'r_4264',true,true,true);
 
 modelRhto2 = removeReactions(modelRhto,getExchangeRxns(modelRhto,'both'),true,true,true);
 % Also, find which reactions in Rhto are already present in Sce (according
@@ -288,32 +289,57 @@ biomassRxns = modelRhto2.rxns(endsWith(modelRhto2.rxnNames,'pseudoreaction'));
 modelRhto2 = removeReactions(modelRhto2,biomassRxns,true,true,true);
 
 % Run fillGaps function
-[~,~, addedRxns, ~, ~]=fillGaps(model,{modelSce2,modelRhto2},false,true);
-
-SceRxns = addedRxns(ismember(addedRxns,modelSce.rxns));
-allRxns = getAllRxnsFromGenes(modelSce,SceRxns);
-model   = addRxnsGenesMets(model, modelSce, allRxns, true);
-RhtoRxns = addedRxns(ismember(addedRxns,modelRhto2.rxns))
-allRxns  = getAllRxnsFromGenes(modelRhto,RhtoRxns);
-model    = addRxnsGenesMets(model, modelRhto, allRxns, true);
+[~,~, addedRxns, model]=fillGaps(model,{modelSce2,modelRhto2},false,true);
 
 % Verify that model can now grow
 sol=solveLP(model,1)
 printFluxes(model,sol.x)
 cd([scripts 'lipidMetabolism'])
 model=scaleLipids(model,'tails');
+cd(scripts)
 
 % Set maximum uptake of carbon source back to 1 mmol/gDCW*hr
 model = setParam(model,'lb','r_1808',-1);
+model = setParam(model,'lb','r_4041',0);
+model = deleteUnusedGenes(model);
 
 % Save workspace
 save([root 'scrap/gapfilling.mat'])
 % load([root 'scrap/gapfilling.mat'])
 clear addedRxns modelSce2 modelRhto2 rxns sol allRxns RhtoRxns SceRxns
 
-%% 3.7 MANUAL CURATION
+%% 3.7 SAVE TO GITHUB
+% The model is tracked and distributed via a GitHub repository. During the
+% reconstruction, one 
 
-% Replace gap-filled genes with orthologs
+% Before saving the model, we will add some extra information.
+model.annotation.defaultLB    = -1000; % Default lower bound
+model.annotation.defaultUB    = +1000; % Default upper bound
+model.annotation.taxonomy     = 'taxonomy/460523';
+model.annotation.givenName    = 'Eduard';
+model.annotation.familyName   = 'Kerkhoven';
+model.annotation.email        = 'eduardk@chalmers.se';
+model.annotation.organization = 'Chalmers University of Technology';
+model.annotation.note         = 'Draft model accompanying book chapter';
+model.id                      = 'hanpo';
+model.description             = 'Hansenula polymorpha-GEM';
+
+% Add model information
+% Remove sce remnants in subSystems
+% As a remnant of the homology based reconstruction, some of the more
+% complex grRules have redundancies in subunit configurations. Also remove
+% unused metabolites and remove 'sce' prefix from subsystems.
+run([scripts 'curation/cleanupModel']);
+
+newCommit(model);
+%% MANUAL CURATION
+% Growth on methanol and glucose mixture. Add reversible exchange reactions
+model = addRxnsGenesMets(model,modelSce,{'r_1714','r_4494'});
+model = setParam(model,'rev',{'r_1714','r_4494'},1);
+model = setParam(model,'lb',{'r_1714','r_4494'},0);
+model = setParam(model,'lb','r_1808',0); % No glycerol
+
+[model2,gam] = fitGAM(model);
 
 % Curate some other reactions
 
@@ -321,17 +347,6 @@ clear addedRxns modelSce2 modelRhto2 rxns sol allRxns RhtoRxns SceRxns
 save([root 'scrap/curation.mat'])
 % load([root 'scrap/curation.mat'])
 
-%% 3.6 SAVE TO GITHUB
-
-
-% Add model information
-% Remove sce remnants in subSystems
-
-% https://github.com/SysBioChalmers/Hansenula_polymorpha-GEM
-
-% Create github repository similar to one linked above
-
-% Upload first homologyModel draft
 
 %% 3.7 SIMULATIONS
 
