@@ -10,7 +10,7 @@
 % lines everytime you start a new MATLAB session where you will be working
 % with this script.
 clear; clc;
-if ~exist([pwd() '\reconstructionProtocol.m']); error(['Make sure that '...
+if ~exist([pwd() '/reconstructionProtocol.m']); error(['Make sure that '...
         'your Current Folder is the one containing the reconstructionProtocol file.']); end
 cd ../;  root = [pwd() '/'];
 data    = [root 'ComplementaryData/'];
@@ -23,6 +23,9 @@ Refer to https://github.com/SysBioChalmers/RAVEN/wiki/Installation for
 details regarding installation process. Use the pathtool function to add
 RAVEN, libSBML, and Gurobi subfolders to MATLAB path.
 %}
+
+% CURRENTLY (JULY 2019), SCRIPT REQUIRES RAVEN FROM fix/MILP_tolerance
+% BRANCH: https://github.com/SysBioChalmers/RAVEN/tree/fix/MILP_tolerance
 
 % Run the following line to ensure that the installation was succesful:
 checkInstallation
