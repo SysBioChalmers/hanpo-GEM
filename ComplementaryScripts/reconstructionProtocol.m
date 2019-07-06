@@ -343,6 +343,7 @@ model.grRules(rhtoRxns);
 % polymorpha: Hanpo2_15704. We will therefore replace the current grRule
 % with the H. polymorpha gene:
 model = changeGrRules(model, 'y300009', 'Hanpo2_15704', true);
+model = deleteUnusedGenes(model);
 
 % Curate the model so it can support growth on methanol. Reactions required
 % for methanol assimilation:
