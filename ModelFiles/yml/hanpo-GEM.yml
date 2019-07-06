@@ -58766,9 +58766,6 @@
     - id: RHTO_00906
     - name: RHTO_00906
   - !!omap
-    - id: RHTO_03911
-    - name: RHTO_03911
-  - !!omap
     - id: RHTO_03915
     - name: RHTO_03915
   - !!omap

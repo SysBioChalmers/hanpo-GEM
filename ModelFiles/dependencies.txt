@@ -1,4 +1,4 @@
 MATLAB	9.3.0.713579 (R2017b)
 libSBML	5.18.0
-RAVEN_toolbox	commit 385f3d7
+RAVEN_toolbox	commit 4b88f0b
 COBRA_toolbox	unknown
