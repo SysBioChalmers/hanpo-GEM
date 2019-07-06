@@ -29774,14 +29774,14 @@
       - sbo: SBO:0000176
     - confidence_score: 2
   - !!omap
-    - id: r_0738
-    - name: mevalonate kinase (UTP)
+    - id: r_0737
+    - name: mevalonate kinase (gtp)
     - metabolites: !!omap
       - s_0019: 1
       - s_0028: -1
+      - s_0739: 1
+      - s_0785: -1
       - s_0794: 1
-      - s_1538: 1
-      - s_1559: -1
     - lower_bound: 0
     - upper_bound: 1000
     - gene_reaction_rule: YMR208W
@@ -35950,6 +35950,17 @@
       - sbo: SBO:0000655
     - confidence_score: 0
   - !!omap
+    - id: r_1585
+    - name: 2-oxobutanoate transporter
+    - metabolites: !!omap
+      - s_0178: -1
+      - s_0179: 1
+    - lower_bound: -1000
+    - upper_bound: 1000
+    - annotation: !!omap
+      - sbo: SBO:0000655
+    - confidence_score: 0
+  - !!omap
     - id: r_1596
     - name: 3-methyl-2-oxopentanoate transport
     - metabolites: !!omap
@@ -36534,17 +36545,6 @@
     - annotation: !!omap
       - sbo: SBO:0000176
     - confidence_score: 2
-  - !!omap
-    - id: r_2072
-    - name: threonine transport
-    - metabolites: !!omap
-      - s_1045: -1
-      - s_1047: 1
-    - lower_bound: 0
-    - upper_bound: 1000
-    - annotation: !!omap
-      - sbo: SBO:0000655
-    - confidence_score: 0
   - !!omap
     - id: r_2079
     - name: trehalose transporter
