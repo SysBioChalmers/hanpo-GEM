@@ -18,7 +18,7 @@ for n = 1:length(model.grRules)
         end
     end
 end
-
+clear geneList k n newgrRule noAnd
 
 %% Remove 'sce' from subsystems
 model.subSystems = cellfun(@(x) regexprep(x,'sce[0-9]+ +',''),model.subSystems, 'UniformOutput', 0);

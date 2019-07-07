@@ -142,12 +142,12 @@ model = setParam(model, 'ub', {'r_4062', 'r_4064', 'r_4046'}, 1000);
 model = setParam(model, 'lb', {'r_4062', 'r_4064', 'r_4046'}, 0);
 
 % Load biomass information
-fid             = fopen([data 'biomass/biomassCuration.csv']);
-loadedData      = textscan(fid, '%q %q %q %f','delimiter', ',', 'HeaderLines', 1);
+fid           = fopen([data 'biomass/biomassCuration.csv']);
+loadedData    = textscan(fid, '%q %q %q %f','delimiter', ',', 'HeaderLines', 1);
 fclose(fid);
 
-BM.name         = loadedData{1};    BM.mets     = loadedData{2};
-BM.pseudorxn    = loadedData{3};    BM.coeff    = loadedData{4};
+BM.name       = loadedData{1};    BM.mets     = loadedData{2};
+BM.pseudorxn  = loadedData{3};    BM.coeff    = loadedData{4};
 
 % Nucleotides (DNA)
 % Find out which rows contain the relevant information
@@ -190,7 +190,7 @@ model = changeRxns(model, 'r_4065', equations, 1);
 
 save([root 'scrap/biomass.mat'])
 % load([root 'scrap/biomass.mat'])
-clear indexes equations loadedData fid BM biomassRxns
+clear indexes equations loadedData fid BM biomassRxns ans
 
 %% 3.5 CURATION OF LIPID REACTIONS
 % H. polymorpha has unique fatty acid and lipid class compositions. SLIMEr
@@ -199,7 +199,8 @@ clear indexes equations loadedData fid BM biomassRxns
 % distributions. To do this, files with templates reactions will be
 % modified to match the desired chain distributions. First read the file.
 fid         = fopen([data '/reconstruction/lipidTemplates.txt']);
-loadedData  = textscan(fid, [repmat('%q ', [1, 19]) '%q'], 'delimiter', '\t', 'HeaderLines',1);
+loadedData  = textscan(fid, [repmat('%q ', [1, 19]) '%q'], 'delimiter', ...
+    '\t', 'HeaderLines',1);
 fclose(fid);
 
 % Reorganize the content so that it can be used by the addLipidReactions
@@ -221,7 +222,8 @@ cd([scripts 'lipidMetabolism'])
 model = addLipidReactions(template,model,modelSce);
 
 fid         = fopen([data '/reconstruction/lipidTransport.txt']);
-loadedData  = textscan(fid, [repmat('%q ', [1, 14]) '%q'], 'delimiter', '\t', 'HeaderLines', 1);
+loadedData  = textscan(fid, [repmat('%q ', [1, 14]) '%q'], 'delimiter', ...
+    '\t', 'HeaderLines', 1);
 fclose(fid);
 clear template
 template.rxns   = loadedData{1};   template.eqns        = loadedData{2};
@@ -238,7 +240,8 @@ model = removeReactions(model,contains(model.rxnNames,'SLIME rxn'));
 % Load SLIME template reactions and parse it through the addSLIMEreactions
 % function to amend the model.
 fid             = fopen([data '/reconstruction/SLIMERtemplates.txt']);
-loadedData      = textscan(fid,['%q %q %f' repmat(' %q',[1,13])],'delimiter','\t','HeaderLines',1);
+loadedData      = textscan(fid,['%q %q %f' repmat(' %q',[1,13])],...
+    'delimiter','\t','HeaderLines',1);
 fclose(fid);
 template.metName    = loadedData{1};	template.bbID   = loadedData{2};
 template.bbMW       = loadedData{3};    template.comps  = loadedData{4};
@@ -250,7 +253,7 @@ cd(scripts)
 
 save([root 'scrap/lipids.mat'])
 % load([root 'scrap/lipids.mat'])
-clear fid loadedData template k 
+clear fid loadedData template k toRemove ans
 %% 3.6 PERFORM GAP-FILLING
 
 % Use biomass production as obj func for gapfilling
@@ -300,7 +303,7 @@ model = deleteUnusedGenes(model);
 % Save workspace
 save([root 'scrap/gapfilling.mat'])
 % load([root 'scrap/gapfilling.mat'])
-clear addedRxns modelSce2 modelRhto2 rxns sol allRxns RhtoRxns SceRxns
+clear addedRxns modelSce2 modelRhto2 rxns sol biomassRxns
 
 %% 3.7 SAVE TO GITHUB
 % The model is tracked and distributed via a GitHub repository. During the
