@@ -34224,7 +34224,7 @@
       - s_0796: -1
     - lower_bound: 0
     - upper_bound: 1000
-    - gene_reaction_rule: Hanpo2_16973 or Hanpo2_86506 or Hanpo2_86506-A
+    - gene_reaction_rule: Hanpo2_16973 or Hanpo2_86506
     - annotation: !!omap
       - sbo: SBO:0000655
     - confidence_score: 2
@@ -34440,7 +34440,7 @@
       - s_0796: -1
     - lower_bound: 0
     - upper_bound: 1000
-    - gene_reaction_rule: Hanpo2_16973 or Hanpo2_86506 or Hanpo2_86506-A
+    - gene_reaction_rule: Hanpo2_16973 or Hanpo2_86506
     - annotation: !!omap
       - sbo: SBO:0000655
     - confidence_score: 2
@@ -34708,7 +34708,7 @@
       - s_0796: -1
     - lower_bound: -1000
     - upper_bound: 1000
-    - gene_reaction_rule: Hanpo2_16973 or Hanpo2_86506 or Hanpo2_86506-A
+    - gene_reaction_rule: Hanpo2_16973 or Hanpo2_86506
     - annotation: !!omap
       - sbo: SBO:0000655
     - confidence_score: 2
