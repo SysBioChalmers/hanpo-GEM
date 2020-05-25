@@ -13,7 +13,7 @@ clear; clc;
 if ~exist([pwd() '/reconstructionProtocol.m']); error(['Make sure that '...
         'your Current Folder is the one containing the reconstructionProtocol file.']); end
 cd ../;  root = [pwd() '/'];
-data    = [root 'data/'];
+data = [root 'data/'];
 code = [root 'code/'];
 cd(code)
 
@@ -24,28 +24,37 @@ details regarding installation process. Use the pathtool function to add
 RAVEN, libSBML, and Gurobi subfolders to MATLAB path.
 %}
 
-% CURRENTLY (JULY 2019), SCRIPT REQUIRES RAVEN FROM fix/MILP_tolerance
-% BRANCH: https://github.com/SysBioChalmers/RAVEN/tree/fix/MILP_tolerance
-
 % Run the following line to ensure that the installation was succesful:
 checkInstallation
 
 % This should typically give the following output:
 %{
-*** THE RAVEN TOOLBOX v. 2.0 ***
+*** THE RAVEN TOOLBOX v.2.4.0 ***
 
-Checking if RAVEN is on the Matlab path... PASSED
-Checking if it is possible to parse a model in Microsoft Excel format... PASSED
-Checking if it is possible to import an SBML model using libSBML... PASSED
+Checking if RAVEN is on the MATLAB path...									OK
+Checking if it is possible to parse a model in Microsoft Excel format...	OK
+Checking if it is possible to import an SBML model using libSBML...			OK
 Solver found in preferences... gurobi
-Checking if it is possible to solve an LP problem using gurobi... PASSED
-Checking if it is possible to solve an LP problem using mosek... FAILED
-Checking if it is possible to solve an LP problem using cobra... PASSED
+Checking if it is possible to solve an LP problem using gurobi...			OK
+Checking if it is possible to solve an LP problem using cobra...			Not OK
 Preferred solver... KEPT
 Solver saved as preference... gurobi
 
-Checking the uniqueness of RAVEN functions across Matlab path...
-No conflicting functions were found
+Checking essential binary executables:
+NOTE: Broken binary executables must be fixed before running RAVEN
+	makeblastdb.exe...							OK
+	blastp.exe...								OK
+	diamond.exe...								OK
+	hmmsearch.exe...							OK
+Checking non-essential/development binary executables:
+NOTE: Only fix these binaries if planning to use KEGG FTP dump files in getKEGGModelForOrganism
+	cd-hit.exe...								OK
+	mafft.bat...								Not OK! If necessary, download/compile the binary and run checkInstallation again
+	hmmbuild.exe...								OK
+
+Checking whether RAVEN functions are non-redundant across MATLAB path...	OK
+
+*** checkInstallation complete ***
 %}
 
 %{
@@ -67,7 +76,7 @@ modelSce = importModel([data 'templateModels/yeastGEM.xml']);
 % Toolbox. COBRA appends the metabolite compartment to the metabolite ID.
 % RAVEN has a separate field (.metComps) for this, so we can remove the
 % redundant compartment information from the metabolite IDs.
-modelSce.mets = regexprep(modelSce.mets, '\[[a-z]+\]$','');
+modelSce.mets = regexprep(modelSce.mets, '\[[a-z]+\]$', '');
 
 % Change model ID to 'sce', this is used by getModelFromHomology to match
 % each model with its corresponding protein FASTA.
@@ -83,7 +92,7 @@ exportToExcelFormat(modelSce, [root 'scrap/modelSce.xlsx']);
 
 % Similarly, load R. toruloides template GEM
 % Source: https://github.com/SysBioChalmers/rhto-GEM/releases/tab/v1.1.2
-modelRhto = importModel([data 'templateModels/rhto.xml'],true);
+modelRhto = importModel([data 'templateModels/rhto.xml'], true);
 modelRhto.id = 'rhto';
 
 %{
@@ -211,15 +220,15 @@ template.chains = {};
 for k = 1:length(loadedData)-4; template.chains(:,k) = loadedData{k+4}; end
 
 % Remove reactions that match a lipid template reaction (ignoring acyl-chains)
-toRemove    = regexprep(template.rxns,'CHAIN.*','');
-toRemove    = find(startsWith(model.rxnNames,toRemove));
-model       = removeReactions(model,toRemove);
+toRemove    = regexprep(template.rxns, 'CHAIN.*', '');
+toRemove    = find(startsWith(model.rxnNames, toRemove));
+model       = removeReactions(model, toRemove);
 
 % Now use the templates to add the relevant reactions to the model. If a
 % reaction already existed in the S. cerevisiae template model, then it
 % will use the same reaction identifier.
 cd([code 'lipidMetabolism'])
-model = addLipidReactions(template,model,modelSce);
+model = addLipidReactions(template, model, modelSce);
 
 fid         = fopen([data '/reconstruction/lipidTransport.txt']);
 loadedData  = textscan(fid, [repmat('%q ', [1, 14]) '%q'], 'delimiter', ...
@@ -230,10 +239,9 @@ template.rxns   = loadedData{1};   template.eqns        = loadedData{2};
 template.comps  = loadedData{3};   template.chains = {};
 for k = 1:length(loadedData)-3; template.chains(:,k) = loadedData{k+3}; end
 
-model = addLipidReactions(template,model,modelSce);
+model = addLipidReactions(template, model, modelSce);
 
-%SLIMER SLIMER SLIMER
-clear template
+% Apply SLIME reactions
 % First remove any SLIME reactions that might exist in the draft model.
 model = removeReactions(model,contains(model.rxnNames,'SLIME rxn'));
 
@@ -248,7 +256,7 @@ template.bbMW       = loadedData{3};    template.comps  = loadedData{4};
 template.chains = {};
 for k = 1:length(loadedData)-4; template.chains(:,k) = loadedData{k+4}; end
 
-model=addSLIMEreactions(template,model,modelSce);
+model = addSLIMEreactions(template, model, modelSce);
 cd(code)
 
 save([root 'scrap/lipids.mat'])
@@ -257,47 +265,47 @@ clear fid loadedData template k toRemove ans
 %% 3.6 PERFORM GAP-FILLING
 
 % Use biomass production as obj func for gapfilling
-model = setParam(model,'obj','r_4041',1);
+model = setParam(model, 'obj', 'r_4041', 1);
 
 % Set biomass production to arbitrary low flux, to force gap-filling to
 % produce biomass.
-model = setParam(model,'lb','r_4041',0.01);
+model = setParam(model, 'lb', 'r_4041', 0.01);
 
 % Set glycerol uptake at a higher value, to make sure that fluxes are high
 % enough during gap-filling that they won't be ignored due to the tolerance
 % of the MILP solver
-model = setParam(model,'lb','r_1808',-10);
+model = setParam(model, 'lb', 'r_1808', -10);
 
 % From the Sce and Rhto models, remove all exchange reactions (the
 % necessary ones we already added, don't want to add new ones)
-modelSce2 = removeReactions(modelSce,getExchangeRxns(modelSce,'both'),true,true,true);
-biomassRxns = modelSce2.rxns(endsWith(modelSce2.rxnNames,'pseudoreaction'));
-modelSce2 = removeReactions(modelSce2,biomassRxns,true,true,true);
-modelSce2 = removeReactions(modelSce2,'r_4264',true,true,true);
+modelSce2 = removeReactions(modelSce, getExchangeRxns(modelSce, 'both'), true, true, true);
+biomassRxns = modelSce2.rxns(endsWith(modelSce2.rxnNames, 'pseudoreaction'));
+modelSce2 = removeReactions(modelSce2, biomassRxns, true, true, true);
+modelSce2 = removeReactions(modelSce2, 'r_4264', true, true, true);
 
-modelRhto2 = removeReactions(modelRhto,getExchangeRxns(modelRhto,'both'),true,true,true);
+modelRhto2 = removeReactions(modelRhto, getExchangeRxns(modelRhto, 'both'), true, true, true);
 % Also, find which reactions in Rhto are already present in Sce (according
 % to reaction ID, as Rhto model is based on Sce). No need to have duplicate
 % reactions as suggestions during gap-filling, this reduces the solution
 % space and helps to solve the MILP part of gap-filling.
-rxns = intersect(modelSce2.rxns,modelRhto2.rxns);
-modelRhto2 = removeReactions(modelRhto2,rxns);
-biomassRxns = modelRhto2.rxns(endsWith(modelRhto2.rxnNames,'pseudoreaction'));
-modelRhto2 = removeReactions(modelRhto2,biomassRxns,true,true,true);
+rxns = intersect(modelSce2.rxns, modelRhto2.rxns);
+modelRhto2 = removeReactions(modelRhto2, rxns);
+biomassRxns = modelRhto2.rxns(endsWith(modelRhto2.rxnNames, 'pseudoreaction'));
+modelRhto2 = removeReactions(modelRhto2, biomassRxns, true, true, true);
 
 % Run fillGaps function
-[~,~, addedRxns, model]=fillGaps(model,{modelSce2,modelRhto2},false,true);
+[~, ~, addedRxns, model] = fillGaps(model, {modelSce2, modelRhto2}, false, true);
 
 % Verify that model can now grow
-sol=solveLP(model,1)
-printFluxes(model,sol.x)
+sol = solveLP(model, 1)
+printFluxes(model, sol.x)
 cd([code 'lipidMetabolism'])
-model=scaleLipids(model,'tails');
+model = scaleLipids(model, 'tails');
 cd(code)
 
 % Set maximum uptake of carbon source back to 1 mmol/gDCW*hr
-model = setParam(model,'lb','r_1808',-1);
-model = setParam(model,'lb','r_4041',0);
+model = setParam(model, 'lb', 'r_1808', -1);
+model = setParam(model, 'lb', 'r_4041', 0);
 model = deleteUnusedGenes(model);
 
 % Save workspace
@@ -306,9 +314,7 @@ save([root 'scrap/gapfilling.mat'])
 clear addedRxns modelSce2 modelRhto2 rxns sol biomassRxns
 
 %% 3.7 SAVE TO GITHUB
-% The model is tracked and distributed via a GitHub repository. During the
-% reconstruction, one 
-
+% The model is tracked and distributed via a GitHub repository.
 % Before saving the model, we will add some extra information.
 model.annotation.defaultLB    = -1000; % Default lower bound
 model.annotation.defaultUB    = +1000; % Default upper bound
@@ -321,7 +327,6 @@ model.annotation.note         = 'Draft model accompanying book chapter';
 model.id                      = 'hanpo';
 model.description             = 'Hansenula polymorpha-GEM';
 
-% Add model information
 % Remove sce remnants in subSystems
 % As a remnant of the homology based reconstruction, some of the more
 % complex grRules have redundancies in subunit configurations. Also remove
@@ -331,14 +336,14 @@ run([code 'curation/cleanupModel']);
 newCommit(model);
 %% 3.8 SIMULATIONS
 % To perform simple FBA, use solveLP
-sol = solveLP(model,1);
+sol = solveLP(model, 1);
 % Flux distributions can be displayed by printFluxes:
 printFluxes(model, sol.x, false);
 
 %% 3.9 MANUAL CURATION
 % Modify gene associations of gap-filled reactions. Find reactions
 % annotationed with R. toruloides genes.
-rhtoRxns = find(contains(model.grRules,'RHTO'));
+rhtoRxns = find(contains(model.grRules, 'RHTO'));
 model.rxnNames(rhtoRxns);
 model.grRules(rhtoRxns);
 
@@ -359,35 +364,35 @@ model = deleteUnusedGenes(model);
 rxnsToAdd.rxns      = {'MOX', 'DAS'};
 rxnsToAdd.equations = {'methanol[p] + oxygen[p] => formaldehyde[p] + hydrogen peroxide[p]',...
 'formaldehyde[p] + D-xylulose 5-phosphate[p] => glyceraldehyde 3-phosphate[p] + glycerone[p]'};
-rxnsToAdd.rxnNames  = {'methanol oxidase','dihydroxyacetone synthase'};
-rxnsToAdd.lb = [0,0];
-rxnsToAdd.ub = [1000,1000];
-rxnsToAdd.eccodes  = {'1.1.3.13','2.2.1.3'};
-rxnsToAdd.grRules  = {'Hanpo2_76277','Hanpo2_95557'};
-rxnsToAdd.rxnNotes = {'Methanol metabolism reaction added by manual curation',
+rxnsToAdd.rxnNames  = {'methanol oxidase', 'dihydroxyacetone synthase'};
+rxnsToAdd.lb = [0, 0];
+rxnsToAdd.ub = [1000, 1000];
+rxnsToAdd.eccodes  = {'1.1.3.13', '2.2.1.3'};
+rxnsToAdd.grRules  = {'Hanpo2_76277', 'Hanpo2_95557'};
+rxnsToAdd.rxnNotes = {'Methanol metabolism reaction added by manual curation', 
 'Methanol metabolism reaction added by manual curation'};
 
-model = addRxns(model,rxnsToAdd,3,'',true,true);
+model = addRxns(model, rxnsToAdd, 3, '', true, true);
 
 % Add methanol (and glucose, was also absent) exchange reactions, and
 % diffusion of oxygen and H2O to peroxisome:
-model = addRxnsGenesMets(model,modelSce,{'r_4494','r_4391','r_1714','r_1980','r_2098'});
+model = addRxnsGenesMets(model, modelSce, {'r_4494', 'r_4391', 'r_1714', 'r_1980', 'r_2098'});
 model = setParam(model, 'rev', {'r_4494', 'r_4391'}, 1);
 model = setParam(model, 'lb', {'r_4494', 'r_4391'}, -1000);
 
 % Add transport reactions between cytoplasm and peroxisome
-model = addTransport(model,'c','p',{'D-xylulose 5-phosphate'...
-'methanol', 'glycerone', 'glyceraldehyde 3-phosphate'},true,false,'t_');
+model = addTransport(model, 'c', 'p', {'D-xylulose 5-phosphate'...
+'methanol', 'glycerone', 'glyceraldehyde 3-phosphate'}, true, false, 't_');
 
 % Confirm that growth on methanol is possible
 % Ensure glycerol/other carbon source uptake is not allowed
-model = setParam(model,'eq',{'r_1808','r_1714'},0);
+model = setParam(model, 'eq', {'r_1808', 'r_1714'}, 0);
 
 % Ensure methanol uptake is allowed
-model = setParam(model,'lb','r_4494',-1);
+model = setParam(model, 'lb', 'r_4494', -1);
 
 % Verify that model can grow
-sol=solveLP(model,1)
-printFluxes(model,sol.x)
+sol = solveLP(model, 1)
+printFluxes(model, sol.x)
 
 newCommit(model);
