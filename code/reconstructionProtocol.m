@@ -13,9 +13,9 @@ clear; clc;
 if ~exist([pwd() '/reconstructionProtocol.m']); error(['Make sure that '...
         'your Current Folder is the one containing the reconstructionProtocol file.']); end
 cd ../;  root = [pwd() '/'];
-data    = [root 'ComplementaryData/'];
-scripts = [root 'ComplementaryScripts/'];
-cd(scripts)
+data    = [root 'data/'];
+code = [root 'code/'];
+cd(code)
 
 %% 3.1 INSTALL RAVEN
 %{
@@ -218,7 +218,7 @@ model       = removeReactions(model,toRemove);
 % Now use the templates to add the relevant reactions to the model. If a
 % reaction already existed in the S. cerevisiae template model, then it
 % will use the same reaction identifier.
-cd([scripts 'lipidMetabolism'])
+cd([code 'lipidMetabolism'])
 model = addLipidReactions(template,model,modelSce);
 
 fid         = fopen([data '/reconstruction/lipidTransport.txt']);
@@ -249,7 +249,7 @@ template.chains = {};
 for k = 1:length(loadedData)-4; template.chains(:,k) = loadedData{k+4}; end
 
 model=addSLIMEreactions(template,model,modelSce);
-cd(scripts)
+cd(code)
 
 save([root 'scrap/lipids.mat'])
 % load([root 'scrap/lipids.mat'])
@@ -291,9 +291,9 @@ modelRhto2 = removeReactions(modelRhto2,biomassRxns,true,true,true);
 % Verify that model can now grow
 sol=solveLP(model,1)
 printFluxes(model,sol.x)
-cd([scripts 'lipidMetabolism'])
+cd([code 'lipidMetabolism'])
 model=scaleLipids(model,'tails');
-cd(scripts)
+cd(code)
 
 % Set maximum uptake of carbon source back to 1 mmol/gDCW*hr
 model = setParam(model,'lb','r_1808',-1);
@@ -326,7 +326,7 @@ model.description             = 'Hansenula polymorpha-GEM';
 % As a remnant of the homology based reconstruction, some of the more
 % complex grRules have redundancies in subunit configurations. Also remove
 % unused metabolites and remove 'sce' prefix from subsystems.
-run([scripts 'curation/cleanupModel']);
+run([code 'curation/cleanupModel']);
 
 newCommit(model);
 %% 3.8 SIMULATIONS
