@@ -1,10 +1,11 @@
 %% PROTOCOL FOR THE RECONSTRUCTION OF A Hansenula polymorpha GENOME SCALE MODEL USING THE RAVEN TOOLBOX
 %  AUTHORS: FRANCISCO ZORRILLA, EDUARD KERKHOVEN
-%
-% Complementary to the book chapter XXXX, where more detailed descriptions
-% are provided. Section numbering in this script match section numbering
-% in the book chapter. 
-%
+%{
+Complementary to the book chapter 16 "Reconstruction of Genome-Scale
+Metabolic Model for Hansenula polymorpha Using RAVEN", in "Yeast Metabolic
+Engineering" where more detailed descriptions are provided. Section
+numbering in this script match section numbering in the book chapter.
+%}
 % Before running further code, it can be convenient to define that path
 % to some often refered to locations in the model repository. Run these
 % lines everytime you start a new MATLAB session where you will be working
@@ -29,7 +30,9 @@ checkInstallation
 
 % This should typically give the following output:
 %{
-*** THE RAVEN TOOLBOX v.2.4.0 ***
+*** THE RAVEN TOOLBOX v.2.6.2 ***
+
+MATLAB R2021a detected
 
 Checking if RAVEN is on the MATLAB path...									OK
 Checking if it is possible to parse a model in Microsoft Excel format...	OK
@@ -41,22 +44,13 @@ Preferred solver... KEPT
 Solver saved as preference... gurobi
 
 Checking essential binary executables:
-NOTE: Broken binary executables must be fixed before running RAVEN
-	makeblastdb.exe...							OK
-	blastp.exe...								OK
-	diamond.exe...								OK
-	hmmsearch.exe...							OK
-Checking non-essential/development binary executables:
-NOTE: Only fix these binaries if planning to use KEGG FTP dump files in getKEGGModelForOrganism
-	cd-hit.exe...								OK
-	mafft.bat...								Not OK! If necessary, download/compile the binary and run checkInstallation again
-	hmmbuild.exe...								OK
-
+	BLAST+... OK
+	DIAMOND... OK
+	HMMER... OK
 Checking whether RAVEN functions are non-redundant across MATLAB path...	OK
 
 *** checkInstallation complete ***
 %}
-
 %{
 NOTE: Some MATLAB toolboxes may cause conflicitng errors with parsing excel
 files. If checkInstallation returns "Checking if it is possible to parse a
@@ -325,7 +319,7 @@ model.annotation.email        = 'eduardk@chalmers.se';
 model.annotation.organization = 'Chalmers University of Technology';
 model.annotation.note         = 'Draft model accompanying book chapter';
 model.id                      = 'hanpo';
-model.description             = 'Hansenula polymorpha-GEM';
+model.name                    = 'Hansenula polymorpha-GEM';
 
 % Remove sce remnants in subSystems
 % As a remnant of the homology based reconstruction, some of the more
@@ -392,7 +386,7 @@ model = setParam(model, 'eq', {'r_1808', 'r_1714'}, 0);
 model = setParam(model, 'lb', 'r_4494', -1);
 
 % Verify that model can grow
-sol = solveLP(model, 1)
-printFluxes(model, sol.x)
+sol=solveLP(model,1);
+printFluxes(model,sol.x)
 
 newCommit(model);

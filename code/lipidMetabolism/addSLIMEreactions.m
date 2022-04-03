@@ -60,7 +60,7 @@ for i=1:length(template.metName)
         products    = [template.bbID(i); dat.ID(coeff)];
         totalMW     = sum([template.bbMW(i); dat.MW(coeff).*n]);
         coeff       = [totalMW; dat.MW(coeff).*n]/1000;
-        substrate   = model.mets(getIndexes(model,[lipid{1} '[' template.comps{i} ']'], 'metscomps'));
+        substrate   = model.mets(getIndexes(model,[lipid{1} '[' template.comps{i} ']'], 'metcomps'));
         % Add reactions
         rxnsToAdd.mets          = [substrate; products];
         rxnsToAdd.stoichCoeffs  = [-1; coeff];
