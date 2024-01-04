@@ -1,54 +1,59 @@
-# Aspergillus_fumigatus-GEM
+# hanpo-GEM: The genome-scale metabolic model of _Hansenula polymorpha_
 
-- Brief Model Description
+# Abstract
 
-This repository contains the current genome-scale metabolic model of _Aspergillus fumigatus_. Various different updated versions can be downloaded as [releases](https://github.com/SysBioChalmers/Candida_albicans-GEM/releases).
+Genome-scale metabolic models (GEMs) provide a useful framework for modeling the metabolism of microorganisms. While the applications of GEMs are wide and far reaching, the reconstruction and continuous curation of such models can be perceived as a tedious and time-consuming task. Using RAVEN, a MATLAB-based toolbox designed to facilitate the reconstruction analysis of metabolic networks, this protocol practically demonstrates how researchers can create their own GEMs using a homology-based approach. To provide a complete example, a draft GEM for the industrially relevant yeast _Hansenula polymorpha_ is reconstructed.
 
-- Abstract
+# Description
 
-_Aspergillus fumigatus_ is a fungus of the genus _Aspergillus_, and is one of the most common _Aspergillus_ species to cause disease in individuals with an immunodeficiency. (source: [Wikipedia](https://en.wikipedia.org/wiki/Aspergillus_fumigatus))
+This repository contains the current genome-scale metabolic model of _Hansenula polymorpha_, synonymously known as _Ogataea polymorpha_. _Hansenula/Ogataea polymorpha_ is a filamentous yeast from the family _Saccharomycetaceae_, and is an industrially relevant methylotrophic species. 
 
-- Model KeyWords
+Clone this repo to download the model and associated data:
 
-**GEM Category:** Species; **Utilisation:** Predictive simulation; **Field:** Metabolic-network reconstruction; **Type of Model:** Reconstruction; **Model Source:** XXX; **Omic Source:** [Genomics](addURLtoGenomePaper)(empty); **Taxonomy:** _Aspergillus fumigatus_; **Metabolic System:** General Metabolism; **Strain:** StrainID; **Condition:** Complex medium;
+```
+$ git clone https://github.com/SysBioChalmers/hanpo-GEM.git
+```
 
-- Reference: TBA
+# Citation
 
-- Pubmed ID: TBA
+If you use hanpo-GEM, or the reconstruction protocol used for its generation, please cite the following textbook chapter:
 
-- Last update: 2018-05-15
+  > Zorrilla, F., Kerkhoven, E.J. (2022). Reconstruction of Genome-Scale Metabolic Model for Hansenula polymorpha Using RAVEN. In: Mapelli, V., Bettiga, M. (eds) Yeast Metabolic Engineering. Methods in Molecular Biology, vol 2513. Humana, New York, NY. https://doi.org/10.1007/978-1-0716-2399-2_16
 
-- The model:
+# Keywords
+
+**Utilisation:** predictive simulation\
+**Field:** metabolic-network reconstruction\
+**Type of Model:** homology-based reconstruction\
+**Model Source:** [hanpo-GEM](https://doi.org/10.1007/978-1-0716-2399-2_16)\
+**Omic Source:** [genome](https://www.ncbi.nlm.nih.gov/datasets/genome/GCF_001664045.1/);[protein](https://mycocosm.jgi.doe.gov/Hanpo2/Hanpo2.home.html)\
+**Taxonomy:** _Hansenula polymorpha_/_Ogataea polymorpha_\
+**Metabolic System:** General Metabolism\
+**Strain:** NCYC 495 leu1.1\
+**Condition:** Complex medium
+
+# Model overview
 
 |Taxonomy | Template Model | Reactions | Metabolites| Genes |
 | ------------- |:-------------:|:-------------:|:-------------:|-----:|
-|Aspergillus fumigatus | XXX | TBA | TBA | TBA |
+|_Hansenula polymorpha_| [yeast-GEM](https://github.com/SysBioChalmers/yeast-GEM) & [rhto-GEM](https://github.com/SysBioChalmers/rhto-GEM/) | 2370 | 2118 | 984 |
 
+# Dependencies
 
-This repository is administered by [@edkerk](https://github.com/edkerk/), Division of Systems and Synthetic Biology, Department of Biology and Biological Engineering, Chalmers University of Technology
+If you want to use the model for your own model simulations, you can use **any software** that accepts SBML L3V1 FBCv3 formatted model files. This includes any of the following:
+* MATLAB-based
+  * [RAVEN Toolbox](https://github.com/SysBioChalmers/RAVEN) version 2.8.3 or later (recommended)  
+  * [COBRA Toolbox](https://github.com/opencobra/cobratoolbox)
 
+* Python-based
+  * [cobrapy](https://github.com/opencobra/cobrapy)  
 
-## Installation
+Please see the installation instructions for each software package.
 
-### Recommended Software:
-* A functional Matlab installation (MATLAB 7.3 or higher).
-* [RAVEN Toolbox 2](https://github.com/SysBioChalmers/RAVEN) for MATLAB (required for contributing to development). 
-* libSBML MATLAB API ([version 5.16.0](https://sourceforge.net/projects/sbml/files/libsbml/5.13.0/stable/MATLAB%20interface/)  is recommended).
-* [Gurobi Optimizer for MATLAB](http://www.gurobi.com/registration/download-reg).
-* For contributing to development: a [git wrapper](https://github.com/manur/MATLAB-git) added to the search path.
+# Contributing
 
-### Installation Instructions
-* Clone the [master](https://github.com/SysBioChalmers/Aspergillus_fumigatus-GEM) branch from [SysBioChalmers GitHub](https://github.com/SysBioChalmers).
-* Add the directory to your Matlab path, instructions [here](https://se.mathworks.com/help/matlab/ref/addpath.html?requestedDomain=www.mathworks.com).
+Contributions are always welcome! Please read the [contributions guideline](https://github.com/SysBioChalmers/yeast-GEM/blob/main/.github/CONTRIBUTING.md) to get started.
 
-### Contribute To Development
-1. Fork the repository to your own Github account
-2. Create a new branch from [`devel`](https://github.com/SysBioChalmers/Aspergillus_fumigatus-GEM/tree/devel).
-3. Make changes to the model
-    + [RAVEN Toolbox 2](https://github.com/SysBioChalmers/RAVEN) for MATLAB is highly recommended for making changes
-    + Before each commit, run in Matlab the `newCommit(model)` function from the `ComplementaryScripts` folder
-    + Make a Pull Request to the `devel` folder, including changed `txt`, `yml` and `xml` files
-
-## Contributors
+# Contributors
 * [Eduard J. Kerkhoven](https://www.chalmers.se/en/staff/Pages/Eduard-Kerkhoven.aspx) ([@edkerk](https://github.com/edkerk)), Chalmers University of Technology, Göteborg, Sweden
-* Francisco Zorrilla ([@franciscozorrilla](https://github.com/franciscozorrilla)), Chalmers University of Technology, Göteborg, Sweden 
+* [Francisco Zorrilla](https://www.mrc-tox.cam.ac.uk/staff/francisco-zorrilla) ([@franciscozorrilla](https://github.com/franciscozorrilla)), MRC Toxicology Unit, University of Cambridge, UK
