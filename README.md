@@ -1,18 +1,34 @@
-# hanpo-GEM: The genome-scale metabolic model of _Hansenula polymorpha_
+# hanpo-GEM: A genome-scale metabolic model of _Hansenula polymorpha_ & accompanying reconstruction protocol
 
 # Abstract
 
-Genome-scale metabolic models (GEMs) provide a useful framework for modeling the metabolism of microorganisms. While the applications of GEMs are wide and far reaching, the reconstruction and continuous curation of such models can be perceived as a tedious and time-consuming task. Using RAVEN, a MATLAB-based toolbox designed to facilitate the reconstruction analysis of metabolic networks, this protocol practically demonstrates how researchers can create their own GEMs using a homology-based approach. To provide a complete example, a draft GEM for the industrially relevant yeast _Hansenula polymorpha_ is reconstructed.
+Genome-scale metabolic models (GEMs) provide a useful framework for modeling the metabolism of microorganisms. While the applications of GEMs are wide and far reaching, the reconstruction and continuous curation of such models can be perceived as a tedious and time-consuming task. Using RAVEN, a MATLAB-based toolbox designed to facilitate the reconstruction analysis of metabolic networks, this [protocol](https://github.com/SysBioChalmers/hanpo-GEM/blob/main/code/reconstructionProtocol.m) practically demonstrates how researchers can create their own GEMs using a homology-based approach. To provide a complete example, a draft GEM for the industrially relevant yeast _Hansenula polymorpha_ is reconstructed.
 
 # Description
 
-This repository contains the current genome-scale metabolic model of _Hansenula polymorpha_, synonymously known as _Ogataea polymorpha_. _Hansenula/Ogataea polymorpha_ is a filamentous yeast from the family _Saccharomycetaceae_, and is an industrially relevant methylotrophic species. 
+This repository contains the current genome-scale metabolic model of _Hansenula polymorpha_, synonymously known as _Ogataea polymorpha_/_Pichia angusta_, as well as the [protocol](https://github.com/SysBioChalmers/hanpo-GEM/blob/main/code/reconstructionProtocol.m) used for its reconstruction. _Hansenula polymorpha_ is a filamentous yeast from the family _Saccharomycetaceae_, and is an industrially relevant methylotrophic species. 
 
-Clone this repo to download the model and associated data:
+Clone this repo to download the model, code, and associated data:
 
 ```
 $ git clone https://github.com/SysBioChalmers/hanpo-GEM.git
 ```
+
+## What are genome-scale metabolic models?
+
+![image](https://github.com/SysBioChalmers/hanpo-GEM/assets/35606471/2d1d50cb-faab-4eb5-833a-7daacb0c8461)
+
+ > Figure 1: Conceptual representation of the information stored in a genome-scale metabolic model. A GEM is fundamentally based on the S-matrix, which is an elegant summary of the stoichiometry of an organism’s specific biochemical pathways and metabolic capabilities. This matrix is sparse and of dimensions M by N, where M represents the number of metabolites and N the number of reactions present in the metabolism of a given organism. Each reaction in this matrix is constrained by some lower bound (LB) and upper bound (UB), which reflects the biological constraints of each reaction (e.g., thermodynamics, reversibility). Additionally, genetic information about each enzyme-catalyzed reaction is stored in the grRules structure
+
+## Reconstruction protocol
+
+![image](https://github.com/SysBioChalmers/hanpo-GEM/assets/35606471/f913fd49-1a12-4e26-b4b3-13dac1364851)
+
+ > Figure 2: Flow diagram representation of this protocol. Note that each box corresponds to a subsection in the Methods section.
+
+![image](https://github.com/SysBioChalmers/hanpo-GEM/assets/35606471/020010e5-3835-49cf-a1a2-61dc076d1e32)
+
+ > Figure 3: Visual summary of files used for model reconstruction. Various key RAVEN functions are shown in Courier New font. Arrows show which files are used by the different functions and tasks. Each dot in the flow diagram represents an intermediate version of the target GEM.
 
 # Citation
 
@@ -27,7 +43,7 @@ If you use hanpo-GEM, or the reconstruction protocol used for its generation, pl
 **Type of Model:** homology-based reconstruction\
 **Model Source:** [hanpo-GEM](https://doi.org/10.1007/978-1-0716-2399-2_16)\
 **Omic Source:** [genome](https://www.ncbi.nlm.nih.gov/datasets/genome/GCF_001664045.1/);[protein](https://mycocosm.jgi.doe.gov/Hanpo2/Hanpo2.home.html)\
-**Taxonomy:** _Hansenula polymorpha_/_Ogataea polymorpha_\
+**Taxonomy:** _Hansenula polymorpha_/_Ogataea polymorpha_/_Pichia angusta_\
 **Metabolic System:** General Metabolism\
 **Strain:** NCYC 495 leu1.1\
 **Condition:** Complex medium
